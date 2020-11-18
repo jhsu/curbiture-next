@@ -22,7 +22,7 @@ export interface User {
 export const createScopeAtom = atom<string>("posts_pending");
 export const viewScopeAtom = atom<string>("posts_approved");
 
-export const userAtom = atom<User | null, (user: User | null) => void>(null);
+export const userAtom = atom<User, User>(null);
 export const isAdminAtom = atom<boolean>(false);
 
 export const locAtom = atom<ItemLocation[]>([]);
