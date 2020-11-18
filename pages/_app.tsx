@@ -1,5 +1,7 @@
 import Head from "next/head";
 import "../styles/index.css";
+import { Provider } from "jotai";
+import { FirebaseProvider } from "../components/firebase";
 
 function MyApp({ Component, pageProps }) {
   return (
@@ -7,7 +9,11 @@ function MyApp({ Component, pageProps }) {
       <Head>
         <title>Curbiture</title>
       </Head>
-      <Component {...pageProps} />
+      <FirebaseProvider>
+        <Provider>
+          <Component {...pageProps} />
+        </Provider>
+      </FirebaseProvider>
     </>
   );
 }
