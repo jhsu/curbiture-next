@@ -1,13 +1,13 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 import * as React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useAtom } from "jotai";
 
 import { userAtom } from "../store";
 
 export const FacebookLogin = () => {
-  const [errors, setErrors] = useState(null);
+  // const [errors, setErrors] = useState(null);
   const [user, setUser] = useAtom(userAtom);
 
   useEffect(() => {
