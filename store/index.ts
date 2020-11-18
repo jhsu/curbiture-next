@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import { WritableAtom } from "jotai/core/types";
 
 export interface LatLngLiteral {
   lat: number;
@@ -22,7 +23,7 @@ export interface User {
 export const createScopeAtom = atom<string>("posts_pending");
 export const viewScopeAtom = atom<string>("posts_approved");
 
-export const userAtom = atom<User, User>(null);
+export const userAtom: WritableAtom<User, User> = atom<User, User | null>(null);
 export const isAdminAtom = atom<boolean>(false);
 
 export const locAtom = atom<ItemLocation[]>([]);
