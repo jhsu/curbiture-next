@@ -8,6 +8,7 @@ import {
   GoogleAPI
 } from "google-maps-react";
 import { useAtom } from "jotai";
+import {} from "googlemaps";
 
 import { useFirestore } from "../firebase";
 import { useFirebaseLocations } from "../../hooks/firebase";

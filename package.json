@@ -9,11 +9,13 @@
     "post-update": "yarn upgrade --latest"
   },
   "dependencies": {
+    "@types/googlemaps": "3.40.3",
     "@types/node": "14.14.8",
     "@types/react": "16.9.56",
     "classnames": "2.2.6",
     "firebase": "8.0.2",
     "google-maps-react": "2.0.6",
+    "googlemaps": "1.12.0",
     "jotai": "0.11.0",
     "next": "latest",
     "react": "^16.13.1",
