@@ -33,11 +33,11 @@ const MapContainer = ({ google }: { google: GoogleAPI }) => {
   );
   const markers = useRef<{ [locId: string]: google.maps.Marker }>({});
 
-  const map = useRef<Map & { map: any }>(null);
+  const map = useRef<Map>(null);
   useEffect(() => {
     if (map.current && locations.length > 0) {
       const gmap = map.current.map;
-      var zoomBounds = new google.maps.LatLngBounds();
+      const zoomBounds = new google.maps.LatLngBounds();
       locations.forEach((loc) => {
         zoomBounds.extend(loc.location);
       });

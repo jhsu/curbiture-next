@@ -110,7 +110,9 @@ declare module "google-maps-react" {
     onMouseover?: markerEventHandler;
   }
 
-  export class Map extends React.Component<IMapProps, any> {}
+  export class Map extends React.Component<IMapProps, any> {
+    map: google.maps.Map;
+  }
 
   export class Marker extends React.Component<IMarkerProps, any> {}
 

@@ -24,7 +24,7 @@ export const Approve = ({ post }: { post: ItemLocation }) => {
             ),
             created_at: post.created_at,
             approved_at: new Date(),
-            available: true
+            available: true,
           });
       } catch (err) {
         console.error("failed to approve post");
