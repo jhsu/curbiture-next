@@ -1,5 +1,8 @@
 module.exports = {
-  purge: ["./components/**/*.tsx", "./pages/**/*.tsx", "./hooks/*.ts"],
+  purge: {
+    layers: ["base", "utilities", "components"],
+    content: ["./components/**/*.tsx", "./pages/**/*.tsx", "./hooks/*.ts"],
+  },
   theme: {
     extend: {
       colors: {},
