@@ -5,10 +5,9 @@ import {
   Map,
   InfoWindow,
   GoogleApiWrapper,
-  GoogleAPI
+  GoogleAPI,
 } from "google-maps-react";
 import { useAtom } from "jotai";
-import {} from "googlemaps";
 
 import { useFirestore } from "../firebase";
 import { useFirebaseLocations } from "../../hooks/firebase";
@@ -19,7 +18,7 @@ import { GOOGLE_KEY } from "../../google";
 const containerStyle = {
   position: "relative",
   width: "100%",
-  height: "100%"
+  height: "100%",
 };
 const MapContainer = ({ google }: { google: GoogleAPI }) => {
   const db = useFirestore();
@@ -51,9 +50,7 @@ const MapContainer = ({ google }: { google: GoogleAPI }) => {
   }, [google, locations]);
 
   const onSelectMarker = useCallback(
-    ({ location }) => {
-      selectLocation(location.id);
-    },
+    (location) => void selectLocation(location.id),
     [selectLocation]
   );
   const deselectMarker = useCallback(() => {
@@ -66,7 +63,6 @@ const MapContainer = ({ google }: { google: GoogleAPI }) => {
 
   return (
     <Map
-      className="h-full w-full"
       ref={map}
       disableDefaultUI
       zoomControl
@@ -75,7 +71,7 @@ const MapContainer = ({ google }: { google: GoogleAPI }) => {
       containerStyle={containerStyle}
       initialCenter={{
         lat: 40.75421,
-        lng: -73.983534
+        lng: -73.983534,
       }}
       style={containerStyle}
       google={google}
@@ -86,7 +82,7 @@ const MapContainer = ({ google }: { google: GoogleAPI }) => {
           const sw = bounds.getSouthWest();
           setBounds({
             ne: ne.toJSON(),
-            sw: sw.toJSON()
+            sw: sw.toJSON(),
           });
         }
       }}
@@ -94,7 +90,6 @@ const MapContainer = ({ google }: { google: GoogleAPI }) => {
       <InfoWindow
         onClose={deselectMarker}
         visible={!!currentMarker}
-        // position={selectedLocation?.location}
         marker={currentMarker}
       >
         <div>
@@ -109,16 +104,12 @@ const MapContainer = ({ google }: { google: GoogleAPI }) => {
 
       {locations.map((location, idx) => (
         <Marker
-          onClick={onSelectMarker}
+          onClick={() => onSelectMarker(location)}
           ref={(marker) => {
             if (marker) {
               markers.current[location.id] = marker.marker;
-              // marker.getMarker().then((markEl: google.maps.Marker) => {
-              //   markers.current[location.id] = marker.marker;
-              // });
             }
           }}
-          location={location}
           key={idx}
           title={location.name}
           position={location.location}
@@ -129,5 +120,5 @@ const MapContainer = ({ google }: { google: GoogleAPI }) => {
 };
 
 export const Mapper = GoogleApiWrapper({
-  apiKey: GOOGLE_KEY
+  apiKey: GOOGLE_KEY,
 })(MapContainer);
