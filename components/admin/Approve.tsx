@@ -5,6 +5,7 @@ import "firebase/firestore";
 
 import { useFirestore } from "../firebase";
 import { ItemLocation } from "../../store";
+import Button from "../Button/Button";
 
 export const Approve = ({ post }: { post: ItemLocation }) => {
   const db = useFirestore();
@@ -36,5 +37,5 @@ export const Approve = ({ post }: { post: ItemLocation }) => {
       }
     }
   }, [db, post]);
-  return <button onClick={approveDocument}>approve</button>;
+  return <Button onClick={approveDocument}>approve</Button>;
 };

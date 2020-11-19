@@ -38,7 +38,7 @@ export const boundsAtom = atom<{ sw: LatLngLiteral; ne: LatLngLiteral }>({
   }
 });
 
-export const selectedLocationAtom = atom<
+export const selectedLocationAtom: WritableAtom<
   string | null,
-  (id: string | null) => void
->(null);
+  string | null
+> = atom<string, string>(null);

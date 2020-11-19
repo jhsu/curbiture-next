@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useCallback } from "react";
 import { useAtom } from "jotai";
+import classnames from "classnames";
 
 import { locAtom, viewScopeAtom, selectedLocationAtom } from "../store";
 
@@ -28,17 +29,34 @@ export const Locations = () => {
       )}
 
       <div>
+        <h2 className="heading">A curb near you.</h2>
         {locations.length === 0 && <div>No posts</div>}
         {locations.map((loc) => {
+          const active = selectedId === loc.id;
           return (
-            <div key={loc.id} onClick={() => selectLocation(loc.id)}>
+            <div
+              key={loc.id}
+              className={classnames(
+                {
+                  "location-active": active,
+                  "location-inactive": !active
+                },
+                "cursor-pointer overflow-auto flex flex-row",
+                "location-item hover:location-active"
+              )}
+              onClick={() => selectLocation(loc.id)}
+            >
               {loc.photo && (
-                <div>
-                  <img src={loc.photo} alt={loc.name} height="80px" />
+                <div className="w-10 float-left mr-1">
+                  <img src={loc.photo} alt={loc.name} width="100%" />
                 </div>
               )}
-              {loc.name}
-              {approving && <Approve post={loc} />}
+              <div className="flex-1 p-1">{loc.name}</div>
+              {approving && (
+                <div className="p-1">
+                  <Approve post={loc} />
+                </div>
+              )}
             </div>
           );
         })}

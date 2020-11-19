@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useAtom } from "jotai";
 
 import { userAtom } from "../store";
+import Button from "./Button/Button";
 
 export const FacebookLogin = () => {
   // const [errors, setErrors] = useState(null);
@@ -48,10 +49,10 @@ export const FacebookLogin = () => {
       {user ? (
         <div>
           {user.displayName}
-          <button onClick={onLogout}>Logout</button>
+          <Button onClick={onLogout}>Logout</Button>
         </div>
       ) : (
-        <button onClick={onLogin}>Login with Facebook</button>
+        <Button onClick={onLogin}>Login with Facebook</Button>
       )}
     </div>
   );

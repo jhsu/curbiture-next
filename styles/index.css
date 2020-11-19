@@ -6,13 +6,43 @@
 @tailwind components;
 /* Stop purging. */
 
-/* Write your own custom component styles here */
-.btn-blue {
-  @apply bg-blue-500 text-white font-bold py-2 px-4 rounded;
-}
-
 /* Start purging... */
 @tailwind utilities;
 /* Stop purging. */
 
 /* Your own custom utilities */
+
+@layer base {
+  body {
+    @apply font-sans;
+  }
+
+  a {
+    @apply text-blue-500;
+  }
+  a:hover {
+    @apply text-blue-300;
+  }
+
+  .heading {
+    @apply font-heading font-semibold;
+  }
+}
+
+@layer components {
+  .map-container > div {
+    @apply h-full;
+  }
+
+  .location-item {
+    min-height: 4rem;
+  }
+  @variants hover {
+    .location-active {
+      @apply bg-blue-500;
+    }
+  }
+  .location-inactive {
+    @apply bg-blue-200;
+  }
+}
