@@ -11,7 +11,7 @@ export default function IndexPage() {
 
   return (
     <div className="h-screen overflow-auto flex flex-row">
-      <div className="w-full md:w-1/3 md:max-w-xs h-full overflow-auto">
+      <div className="w-full md:w-1/3 md:max-w-xs h-full overflow-auto flex flex-col">
         <FacebookLogin />
         <Locations />
       </div>

@@ -16,11 +16,11 @@ export const Locations = () => {
   const isAdmin = useIsAdmin();
 
   const onChangeScope = useCallback((e) => void setViewScope(e.target.value), [
-    setViewScope
+    setViewScope,
   ]);
   const approving = viewingScope === "posts_pending";
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       {isAdmin && (
         <select value={viewingScope} onChange={onChangeScope}>
           <option value="posts_pending">pending</option>
@@ -28,38 +28,41 @@ export const Locations = () => {
         </select>
       )}
 
-      <div>
+      <div className="flex-1 flex flex-col">
         <h2 className="heading">A curb near you.</h2>
         {locations.length === 0 && <div>No posts</div>}
-        {locations.map((loc) => {
-          const active = selectedId === loc.id;
-          return (
-            <div
-              key={loc.id}
-              className={classnames(
-                {
-                  "location-active": active,
-                  "location-inactive": !active
-                },
-                "cursor-pointer overflow-auto flex flex-row",
-                "location-item hover:location-active"
-              )}
-              onClick={() => selectLocation(loc.id)}
-            >
-              {loc.photo && (
-                <div className="w-10 float-left mr-1">
-                  <img src={loc.photo} alt={loc.name} width="100%" />
-                </div>
-              )}
-              <div className="flex-1 p-1">{loc.name}</div>
-              {approving && (
-                <div className="p-1">
-                  <Approve post={loc} />
-                </div>
-              )}
-            </div>
-          );
-        })}
+        <div className="flex flex-1 flex-wrap">
+          {locations.map((loc) => {
+            const active = selectedId === loc.id;
+            return (
+              <div
+                key={loc.id}
+                className={classnames(
+                  {
+                    "location-active": active,
+                    "location-inactive": !active,
+                  },
+                  "w-full max-w-1/2 md:max-w-full md:w-full",
+                  "cursor-pointer overflow-auto flex flex-row",
+                  "location-item hover:location-active"
+                )}
+                onClick={() => selectLocation(loc.id)}
+              >
+                {loc.photo && (
+                  <div className="w-10 float-left mr-1">
+                    <img src={loc.photo} alt={loc.name} width="100%" />
+                  </div>
+                )}
+                <div className="flex-1 p-1">{loc.name}</div>
+                {approving && (
+                  <div className="p-1">
+                    <Approve post={loc} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

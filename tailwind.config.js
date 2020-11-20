@@ -10,6 +10,9 @@ module.exports = {
         sans: ["Roboto", "sans-serif"],
         heading: ['"Open Sans"', "Roboto", "sans-serif"],
       },
+      maxWidth: {
+        "1/2": "50%",
+      },
     },
   },
 };
