@@ -30,15 +30,22 @@ export const locAtom = atom<ItemLocation[]>([]);
 export const boundsAtom = atom<{ sw: LatLngLiteral; ne: LatLngLiteral }>({
   sw: {
     lat: 0,
-    lng: 0
+    lng: 0,
   },
   ne: {
     lat: 0,
-    lng: 0
-  }
+    lng: 0,
+  },
 });
 
 export const selectedLocationAtom: WritableAtom<
   string | null,
   string | null
 > = atom<string, string>(null);
+
+export const clearPostSelection = atom(
+  (get) => get(selectedLocationAtom),
+  (_get, set) => {
+    set(selectedLocationAtom, null);
+  }
+);
