@@ -3,12 +3,14 @@ import { useCallback } from "react";
 import firebase from "firebase/app";
 import "firebase/firestore";
 
-import { useFirestore } from "../firebase";
+import { useFirestore, useGeofire } from "../firebase";
 import { ItemLocation } from "../../store";
 import Button from "../Button/Button";
 
 export const Approve = ({ post }: { post: ItemLocation }) => {
   const db = useFirestore();
+  const geofire = useGeofire();
+
   const approveDocument = useCallback(async () => {
     if (db) {
       try {
@@ -26,6 +28,8 @@ export const Approve = ({ post }: { post: ItemLocation }) => {
             approved_at: new Date(),
             available: true,
           });
+        // update geofire
+        await geofire.set(post.id, [post.location.lat, post.location.lng]);
       } catch (err) {
         console.error("failed to approve post");
         return err;

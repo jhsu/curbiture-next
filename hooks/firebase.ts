@@ -2,9 +2,26 @@ import { useAtom } from "jotai";
 import { useEffect } from "react";
 import { locAtom, viewScopeAtom } from "../store";
 import firebase from "firebase/app";
+import { useGeofire } from "../components/firebase";
+
+// TODO: use geofire
+export const useVisibleLocations = ({ bounds }) => {
+  const geofire = useGeofire();
+  // watch for location changes within query
+  const query = geofire.query({
+    center: [1, 1],
+    radius: 1, // km
+  });
+  query.on("key_entered", () => {
+    // add
+  });
+  query.on("key_exited", () => {
+    // remove
+  });
+};
 
 export const useFirebaseLocations = ({
-  db
+  db,
 }: {
   db?: firebase.firestore.Firestore | null;
 }) => {
@@ -34,9 +51,9 @@ export const useFirebaseLocations = ({
                       created_at: postDoc.created_at.toDate() as Date,
                       location: {
                         lat: postDoc.location?.latitude as number,
-                        lng: postDoc.location?.longitude as number
+                        lng: postDoc.location?.longitude as number,
                       },
-                      photo: postDoc.photo
+                      photo: postDoc.photo,
                     };
                   }
                   return il;
@@ -50,9 +67,9 @@ export const useFirebaseLocations = ({
                   created_at: postDoc.created_at.toDate() as Date,
                   location: {
                     lat: postDoc.location?.latitude as number,
-                    lng: postDoc.location?.longitude as number
+                    lng: postDoc.location?.longitude as number,
                   },
-                  photo: postDoc.photo
+                  photo: postDoc.photo,
                 };
                 return [postData, ...prev];
               }

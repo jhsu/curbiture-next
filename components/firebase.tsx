@@ -5,17 +5,24 @@ import { useContext, useMemo, useState } from "react";
 import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
+import { GeoFire } from "geofire";
 
 const firebaseContext = React.createContext<firebase.app.App | null>(null);
 
 const Provider = firebaseContext.Provider;
+
+export const useGeofire = () => {
+  const firebase = useContext(firebaseContext);
+  const geofire = useMemo(() => new GeoFire(firebase.database().ref()), []);
+  return geofire;
+};
 
 export const useFirestore = () => {
   const firebase = useContext(firebaseContext);
   return firebase?.firestore();
 };
 export const FirebaseProvider = ({
-  children
+  children,
 }: {
   children: React.ReactNode;
 }) => {
@@ -29,7 +36,7 @@ export const FirebaseProvider = ({
         projectId: "stoob-queue",
         storageBucket: "stoob-queue.appspot.com",
         messagingSenderId: "152274101619",
-        appId: "1:152274101619:web:72a0099225cf9363ba1106"
+        appId: "1:152274101619:web:72a0099225cf9363ba1106",
       });
       setFirebase(app);
     } else {
