@@ -4,11 +4,11 @@ import * as React from "react";
 import { useCallback } from "react";
 import { ItemLocation } from "../../store";
 import Button from "../Button/Button";
-import { useFirestore, useGeofire } from "../firebase";
+import { useFirestore } from "../firebase";
 
 export const Approve = ({ post }: { post: ItemLocation }) => {
   const db = useFirestore();
-  const geofire = useGeofire();
+  // const geofire = useGeofire("geo_posts");
 
   const approveDocument = useCallback(async () => {
     if (db) {

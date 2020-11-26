@@ -3,6 +3,7 @@ import React from "react";
 
 interface ButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   disabled?: boolean;
+  type?: "button" | "submit" | "reset";
   primary?: boolean;
   icon?: boolean;
 }

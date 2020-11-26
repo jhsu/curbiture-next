@@ -1,3 +1,4 @@
+// eslint-disable-next-line
 module.exports = {
   purge: {
     layers: ["base", "utilities", "components"],

@@ -1,23 +1,29 @@
 import firebase from "firebase/app";
 import { useAtom } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGeofire } from "../components/firebase";
 import { locAtom, viewScopeAtom } from "../store";
 
 // TODO: use geofire
-export const useVisibleLocations = ({ bounds }) => {
-  const geofire = useGeofire();
+export const useVisibleLocations = ({
+  bounds,
+}: {
+  bounds: [number, number];
+}) => {
+  const [items, setItems] = useState([]);
+  const geofire = useGeofire("geo_posts");
   // watch for location changes within query
-  const query = geofire.query({
-    center: [1, 1],
-    radius: 1, // km
-  });
-  query.on("key_entered", () => {
-    // add
-  });
-  query.on("key_exited", () => {
-    // remove
-  });
+  useEffect(() => {
+    geofire
+      .near({})
+      .near({
+        center: new firebase.firestore.GeoPoint(bounds[0], bounds[1]),
+        radius: 5, // km
+      })
+      .get()
+      .then((values) => void setItems(values.docs));
+  }, [bounds]);
+  return items;
 };
 
 export const useFirebaseLocations = ({
