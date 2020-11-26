@@ -45,7 +45,7 @@ class MyDocument extends Document {
             sizes="16x16"
             href="/icons/curbiture-16.png"
           />
-          <link rel="manifest" href="/manifest.json" />
+          <link rel="manifest" href="/manifest.webmanifest" />
           {/* <link
             rel="mask-icon"
             href="/static/icons/safari-pinned-tab.svg"
