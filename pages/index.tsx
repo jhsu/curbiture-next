@@ -38,11 +38,17 @@ const NavBar = () => {
             <CrosshairIcon size="m" />
           </Button>
         )}
-        {view !== "add-post" && (
-          <Button icon onClick={onAddPost} className={classnames("shadow-md")}>
-            <PlusIcon size="m" />
-          </Button>
-        )}
+        <RequireLogin>
+          {view !== "add-post" && (
+            <Button
+              icon
+              onClick={onAddPost}
+              className={classnames("shadow-md")}
+            >
+              <PlusIcon size="m" />
+            </Button>
+          )}
+        </RequireLogin>
       </div>
       <button
         className={classnames("nav-action", {
