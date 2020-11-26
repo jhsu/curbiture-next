@@ -77,6 +77,12 @@
   }
   .nav-action-button {
   }
+
+  @media all and (display-mode: standalone) {
+    .install-bar {
+      display: none;
+    }
+  }
 }
 
 /* Start purging... */
