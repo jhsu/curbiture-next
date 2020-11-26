@@ -53,7 +53,7 @@
 
   /*** NAV ***/
   .bottom-nav {
-    @apply fixed bottom-0 left-0 right-0 w-full h-16 z-40 p-2 flex flex-row justify-around;
+    @apply fixed bottom-0 left-0 right-0 w-full h-16 z-40 p-2 pb-4 flex flex-row justify-around;
     @apply bg-gray-100;
     box-shadow: 0 0 0.5rem 0.1rem theme("colors.gray.500");
   }
