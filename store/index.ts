@@ -49,3 +49,5 @@ export const clearPostSelection = atom(
     set(selectedLocationAtom, null);
   }
 );
+
+export const activeView = atom<"map" | "add-post" | "list">("list");

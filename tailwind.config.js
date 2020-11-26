@@ -15,4 +15,7 @@ module.exports = {
       },
     },
   },
+  corePlugins: {
+    inset: true,
+  },
 };

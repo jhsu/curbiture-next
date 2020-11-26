@@ -1,33 +1,39 @@
-import * as React from "react";
-
-import { useContext, useMemo, useState } from "react";
-
 import firebase from "firebase/app";
-import "firebase/firestore";
 import "firebase/auth";
-import { GeoFire } from "geofire";
+import "firebase/firestore";
+import "firebase/storage";
+import * as geofire from "geofirestore";
+import * as React from "react";
+import { useContext } from "react";
 
 const firebaseContext = React.createContext<firebase.app.App | null>(null);
 
 const Provider = firebaseContext.Provider;
 
 export const useGeofire = () => {
-  const firebase = useContext(firebaseContext);
-  const geofire = useMemo(() => new GeoFire(firebase.database().ref()), []);
-  return geofire;
+  const firestore = useFirestore();
+  const geo = React.useMemo(() => geofire.initializeApp(firestore), [
+    firestore,
+  ]);
+  return geo;
 };
 
 export const useFirestore = () => {
-  const firebase = useContext(firebaseContext);
-  return firebase?.firestore();
+  const app = useContext(firebaseContext);
+  return React.useMemo(() => app?.firestore(), [app]);
 };
+
+export const useFireStorage = () => {
+  const app = useContext(firebaseContext);
+  return React.useMemo(() => app.storage().ref(), [app]);
+};
+
 export const FirebaseProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const [fbase, setFirebase] = useState<firebase.app.App | null>(null);
-  useMemo(() => {
+  const fbase = React.useMemo(() => {
     if (!firebase.apps.length) {
       const app = firebase.initializeApp({
         apiKey: "AIzaSyDbMz51a7Vtz3af19vJxcol6cMucQ2EDcg",
@@ -38,8 +44,7 @@ export const FirebaseProvider = ({
         messagingSenderId: "152274101619",
         appId: "1:152274101619:web:72a0099225cf9363ba1106",
       });
-      setFirebase(app);
-    } else {
+      return app;
     }
   }, []);
 

@@ -1,26 +1,30 @@
-import * as React from "react";
-import { useCallback, useMemo, useRef, useEffect } from "react";
 import {
-  Marker,
-  Map,
-  InfoWindow,
-  GoogleApiWrapper,
   GoogleAPI,
+  GoogleApiWrapper,
+  InfoWindow,
+  Map,
+  Marker,
 } from "google-maps-react";
 import { useAtom } from "jotai";
-
-import { useFirestore } from "../firebase";
-import { useFirebaseLocations } from "../../hooks/firebase";
-import { locAtom, boundsAtom, selectedLocationAtom } from "../../store";
-
+import * as React from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { GOOGLE_KEY } from "../../google";
+import { useFirebaseLocations } from "../../hooks/firebase";
+import { boundsAtom, locAtom, selectedLocationAtom } from "../../store";
+import { useFirestore } from "../firebase";
 
 const containerStyle = {
   position: "relative",
   width: "100%",
   height: "100%",
 };
-const MapContainer = ({ google }: { google: GoogleAPI }) => {
+const MapContainer = ({
+  active = true,
+  google,
+}: {
+  active?: boolean;
+  google: GoogleAPI;
+}) => {
   const db = useFirestore();
   useFirebaseLocations({ db });
   const [locations] = useAtom(locAtom);
@@ -35,7 +39,7 @@ const MapContainer = ({ google }: { google: GoogleAPI }) => {
 
   const map = useRef<Map>(null);
   useEffect(() => {
-    if (map.current && locations.length > 0) {
+    if (google && map.current && locations.length > 0 && active) {
       const gmap = map.current.map;
       const zoomBounds = new google.maps.LatLngBounds();
       locations.forEach((loc) => {
@@ -47,7 +51,7 @@ const MapContainer = ({ google }: { google: GoogleAPI }) => {
         gmap.setZoom(15);
       }
     }
-  }, [google, locations]);
+  }, [google, locations, active]);
 
   const onSelectMarker = useCallback(
     (location) => void selectLocation(location.id),
@@ -66,6 +70,9 @@ const MapContainer = ({ google }: { google: GoogleAPI }) => {
       ref={map}
       disableDefaultUI
       zoomControl
+      zoomControlOptions={{
+        position: google.maps.ControlPosition.LEFT_BOTTOM,
+      }}
       minZoom={10}
       gestureHandling="greedy"
       containerStyle={containerStyle}

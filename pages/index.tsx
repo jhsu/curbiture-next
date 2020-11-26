@@ -1,26 +1,76 @@
-import { useCallback } from "react";
-import { useAtom } from "jotai";
-import { animated, useSpring } from "react-spring";
 import classnames from "classnames";
-
-import { Locations } from "../components/Locations";
-import { useFirestore } from "../components/firebase";
-import { useFirebaseLocations } from "../hooks/firebase";
-
-import { FacebookLogin } from "../components/FacebookLogin";
-import { Mapper } from "../components/Mapper/Mapper";
-import { clearPostSelection, selectedLocationAtom } from "../store";
+import { useAtom } from "jotai";
+import { useCallback } from "react";
+import { AddPosting } from "../components/admin/AddPost";
+import { RequireLogin } from "../components/admin/RequireLogin";
 import Button from "../components/Button/Button";
+import { FacebookLogin } from "../components/FacebookLogin";
+import { useFirestore } from "../components/firebase";
+import { Mapper } from "../components/Mapper/Mapper";
+import { Posts } from "../components/Posts";
+import {
+  CrosshairIcon,
+  ListIcon,
+  MapIcon,
+  PlusIcon,
+  UserIcon,
+} from "../components/SvgIcon";
+import { useFirebaseLocations } from "../hooks/firebase";
+import { activeView, clearPostSelection, selectedLocationAtom } from "../store";
 
 const NavBar = () => {
+  const [view, setView] = useAtom(activeView);
   // const [, setSelectedPost] = useAtom(selectedLocationAtom);
   const [, clearSelection] = useAtom(clearPostSelection);
+
+  const onAddPost = useCallback(() => void setView("add-post"), [setView]);
+  const onViewMap = useCallback(() => void setView("map"), [setView]);
+  const onViewList = useCallback(() => {
+    clearSelection();
+    setView("list");
+  }, [setView]);
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 w-full bg-gray-100 z-40 p-2 flex flex-row">
-      <Button onClick={clearSelection}>Posts</Button>
-      <Button>+</Button>
-      <Button>Map</Button>
-    </div>
+    <nav className="bottom-nav">
+      <div className="nav-actions absolute right-4 bottom-20 flex flex-col">
+        {view === "map" && (
+          <Button icon onClick={onViewMap} className={classnames("shadow-md")}>
+            <CrosshairIcon size="m" />
+          </Button>
+        )}
+        {view !== "add-post" && (
+          <Button icon onClick={onAddPost} className={classnames("shadow-md")}>
+            <PlusIcon size="m" />
+          </Button>
+        )}
+      </div>
+      <button
+        className={classnames("nav-action", {
+          "nav-action__active": false,
+        })}
+      >
+        <UserIcon size="s" className="nav-action-button" />
+        <span>User</span>
+      </button>
+      <button
+        className={classnames("nav-action", {
+          "nav-action__active": view === "list",
+        })}
+        onClick={onViewList}
+      >
+        <ListIcon size="s" className="nav-action-button" />
+        <span>Posts</span>
+      </button>
+      <button
+        className={classnames("nav-action", {
+          "nav-action__active": view === "map",
+        })}
+        onClick={onViewMap}
+      >
+        <MapIcon size="s" className="nav-action-button" />
+        <span>Map</span>
+      </button>
+    </nav>
   );
 };
 
@@ -29,37 +79,36 @@ export default function IndexPage() {
   const [selectedId, setSelectedPost] = useAtom(selectedLocationAtom);
   useFirebaseLocations({ db });
 
-  // TODO: only do this for mobile
-  const props = useSpring({
-    x: selectedId !== null ? -100 : 0,
-  });
+  const [view] = useAtom(activeView);
 
   const onBack = useCallback(() => void setSelectedPost(null), [
     setSelectedPost,
   ]);
   return (
-    <div className="h-screen overflow-auto flex flex-row">
-      <animated.div
-        style={{ transform: props.x.interpolate((x) => `translateX(${x}vw)`) }}
-        className={classnames(
-          "absolute z-20 inset-0",
-          "bg-gray-100",
-          "w-full md:w-1/3 md:max-w-xs h-full overflow-auto flex flex-col"
-        )}
-      >
-        <FacebookLogin />
-        <Locations />
-      </animated.div>
-      <div className="w-1/3 max-w-xs hidden md:block transparent"></div>
-      <div className={classnames("flex-1 map-container")}>
-        {selectedId && (
-          <Button className="absolute z-10" onClick={onBack}>
-            Back
-          </Button>
-        )}
-        <Mapper />
+    <div className="flex flex-col h-screen">
+      <FacebookLogin />
+      <div className="flex-1 h-full overflow-auto flex flex-row">
+        <div
+          className={classnames(
+            "bg-gray-100",
+            "w-full md:w-1/3 md:max-w-xs h-full overflow-auto flex flex-col",
+            {
+              hidden: view === "map",
+            }
+          )}
+        >
+          {view === "add-post" && (
+            <RequireLogin>
+              <AddPosting />
+            </RequireLogin>
+          )}
+          {view === "list" && <Posts />}
+        </div>
+        <div className={classnames("flex-1 map-container")}>
+          <Mapper active={view === "map"} />
+        </div>
+        <NavBar />
       </div>
-      <NavBar />
     </div>
   );
 }

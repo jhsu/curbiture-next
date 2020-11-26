@@ -1,8 +1,8 @@
+import firebase from "firebase/app";
 import { useAtom } from "jotai";
 import { useEffect } from "react";
-import { locAtom, viewScopeAtom } from "../store";
-import firebase from "firebase/app";
 import { useGeofire } from "../components/firebase";
+import { locAtom, viewScopeAtom } from "../store";
 
 // TODO: use geofire
 export const useVisibleLocations = ({ bounds }) => {

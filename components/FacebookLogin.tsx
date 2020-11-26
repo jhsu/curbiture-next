@@ -1,9 +1,8 @@
 import firebase from "firebase/app";
 import "firebase/auth";
+import { useAtom } from "jotai";
 import * as React from "react";
 import { useCallback, useEffect, useMemo } from "react";
-import { useAtom } from "jotai";
-
 import { userAtom } from "../store";
 import Button from "./Button/Button";
 
@@ -47,9 +46,11 @@ export const FacebookLogin = () => {
   return (
     <div>
       {user ? (
-        <div>
-          {user.displayName}
-          <Button onClick={onLogout}>Logout</Button>
+        <div className="py-2 px-3">
+          <span className="mr-2">{user.displayName}</span>
+          <Button className="" onClick={onLogout}>
+            Logout
+          </Button>
         </div>
       ) : (
         <Button onClick={onLogin}>Login with Facebook</Button>

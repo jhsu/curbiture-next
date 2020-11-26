@@ -1,17 +1,6 @@
 @tailwind base;
 
 /* Write your own custom base styles here */
-
-/* Start purging... */
-@tailwind components;
-/* Stop purging. */
-
-/* Start purging... */
-@tailwind utilities;
-/* Stop purging. */
-
-/* Your own custom utilities */
-
 @layer base {
   body {
     @apply font-sans;
@@ -24,25 +13,78 @@
     @apply text-blue-300;
   }
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
   .heading {
     @apply font-heading font-semibold;
+  }
+
+  .heading {
+    @apply leading-relaxed mb-2;
   }
 }
 
 @layer components {
+  /*** MAP ***/
   .map-container > div {
-    @apply h-full;
+    @apply h-full pb-16;
   }
 
-  .location-item {
-    min-height: 4rem;
+  /*** POSTS ***/
+  .posts-item {
   }
   @variants hover {
-    .location-active {
+    .posts-item-active {
       @apply bg-blue-500;
     }
   }
-  .location-inactive {
-    @apply bg-blue-200;
+
+  /*** FORM ***/
+  .field {
+    @apply block w-full p-3 mt-2 text-gray-700 bg-gray-200 appearance-none;
+  }
+
+  .field-label {
+    @apply uppercase font-bold text-lg text-gray-900 mb-2;
+  }
+
+  /*** NAV ***/
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 w-full h-16 z-40 p-2 flex flex-row justify-around;
+    @apply bg-gray-100;
+    box-shadow: 0 0 0.5rem 0.1rem theme("colors.gray.500");
+  }
+
+  .nav-actions {
+    @apply flex;
+  }
+  .nav-actions > * {
+    @apply mb-2;
+  }
+  .nav-actions > *:last-child {
+    @apply mb-0;
+  }
+
+  .nav-action {
+    @apply flex flex-1 flex-col justify-center items-center;
+  }
+
+  .nav-action__active {
+    @apply text-blue-500;
+  }
+  .nav-action-button {
   }
 }
+
+/* Start purging... */
+@tailwind components;
+/* Stop purging. */
+
+/* Start purging... */
+@tailwind utilities;
+/* Stop purging. */
+
+/* Your own custom utilities */
