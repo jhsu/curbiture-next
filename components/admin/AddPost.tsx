@@ -31,14 +31,14 @@ const geocodeLocation = async (
     bounds,
   }: {
     address: string;
-    bounds: { sw: google.maps.LatLngLiteral; ne: google.maps.LatLngLiteral };
+    bounds: google.maps.LatLngBounds;
   }
 ) => {
   return new Promise<google.maps.LatLng>((resolve, reject) => {
     geocoder.geocode(
       {
         address,
-        bounds: new google.maps.LatLngBounds(bounds.sw, bounds.ne),
+        bounds,
       },
       (results, status) => {
         if (status === "OK") {
@@ -88,6 +88,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
             bounds,
           });
           let url: string | null = null;
+          let photoPath: string;
           if (photo && photo[0]) {
             const file = photo[0];
             // upload photo
@@ -99,6 +100,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
               const snapshot = await storage
                 .child(`posts/${file.name}`)
                 .put(file, metadata);
+              photoPath = snapshot.ref.fullPath;
               url = await snapshot.ref.getDownloadURL();
             } catch (err) {
               setError("photo", {
@@ -117,8 +119,10 @@ const LocationInput = ({ google }: LocationInputProps) => {
               .set({
                 name,
                 created_at: timestamp,
+                address,
                 location: new firebase.firestore.GeoPoint(loc.lat(), loc.lng()),
                 photo: url,
+                photo_path: photoPath,
               });
             // setActiveLocation(key);
             reset();
@@ -147,7 +151,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
   // TODO: on address change, show preview marker
   // TODO: add a debounce on Change to search and view the location
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mb-6 py-4 px-3">
+    <form onSubmit={handleSubmit(onSubmit)} className="mb-6 py-4 px-3 pb-24">
       {formError && <div>{formError.message}</div>}
       <div className="flex flex-col mb-4">
         <label htmlFor="post_photo" className="field-label">

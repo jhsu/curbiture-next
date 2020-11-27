@@ -12,6 +12,8 @@ export interface ItemLocation {
   created_at: Date;
   location: LatLngLiteral;
   photo?: string;
+  photo_path?: string;
+  address?: string;
 }
 
 export interface User {
@@ -27,16 +29,11 @@ export const userAtom: WritableAtom<User, User> = atom<User, User | null>(null);
 export const isAdminAtom = atom<boolean>(false);
 
 export const locAtom = atom<ItemLocation[]>([]);
-export const boundsAtom = atom<{ sw: LatLngLiteral; ne: LatLngLiteral }>({
-  sw: {
-    lat: 0,
-    lng: 0,
-  },
-  ne: {
-    lat: 0,
-    lng: 0,
-  },
-});
+export const unapprovedPosts = atom<ItemLocation[]>([]);
+export const boundsAtom: WritableAtom<
+  google.maps.LatLngBounds,
+  google.maps.LatLngBounds
+> = atom<google.maps.LatLngBounds | null>(null);
 
 export const selectedLocationAtom: WritableAtom<
   string | null,
@@ -51,3 +48,10 @@ export const clearPostSelection = atom(
 );
 
 export const activeView = atom<"map" | "add-post" | "list">("list");
+
+export const mapAtom = atom<{ map: google.maps.Map }>({ map: null });
+
+export const viewOnMapAtom = atom(null, (get, set, postId: string) => {
+  set(activeView, "map");
+  set(selectedLocationAtom, postId);
+});

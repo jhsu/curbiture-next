@@ -10,12 +10,18 @@ const firebaseContext = React.createContext<firebase.app.App | null>(null);
 
 const Provider = firebaseContext.Provider;
 
-export const useGeofire = (collection) => {
+export const useGeofire = (collection: string) => {
   const firestore = useFirestore();
-  const geo = React.useMemo(
-    () => geofire.initializeApp(firestore).collection(collection),
-    [firestore, collection]
-  );
+  const geo = React.useMemo(() => {
+    if (!firestore) {
+      return;
+    }
+    const geoFireCollection = geofire
+      .initializeApp(firestore)
+      .collection(collection);
+
+    return geoFireCollection;
+  }, [firestore, collection]);
   return geo;
 };
 

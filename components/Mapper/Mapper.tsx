@@ -7,51 +7,62 @@ import {
 } from "google-maps-react";
 import { useAtom } from "jotai";
 import * as React from "react";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GOOGLE_KEY } from "../../google";
-import { useFirebaseLocations } from "../../hooks/firebase";
-import { boundsAtom, locAtom, selectedLocationAtom } from "../../store";
-import { useFirestore } from "../firebase";
+import { useVisibleLocations } from "../../hooks/firebase";
+import {
+  boundsAtom,
+  locAtom,
+  // mapAtom,
+  selectedLocationAtom,
+} from "../../store";
 
 const containerStyle = {
   position: "relative",
   width: "100%",
   height: "100%",
 };
-const MapContainer = ({
-  active = true,
-  google,
-}: {
-  active?: boolean;
-  google: GoogleAPI;
-}) => {
-  const db = useFirestore();
-  useFirebaseLocations({ db });
-  const [locations] = useAtom(locAtom);
+const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
+  useVisibleLocations();
+  const [items] = useAtom(locAtom);
   const [, setBounds] = useAtom(boundsAtom);
   const [selectedLocationId, selectLocation] = useAtom(selectedLocationAtom);
+  // const [, setGoogleMap] = useAtom(mapAtom);
 
   const selectedLocation = useMemo(
-    () => locations.find((loc) => loc.id === selectedLocationId),
-    [locations, selectedLocationId]
+    () => items.find((loc) => loc.id === selectedLocationId),
+    [items, selectedLocationId]
   );
   const markers = useRef<{ [locId: string]: google.maps.Marker }>({});
 
   const map = useRef<Map>(null);
-  useEffect(() => {
-    if (google && map.current && locations.length > 0 && active) {
-      const gmap = map.current.map;
-      const zoomBounds = new google.maps.LatLngBounds();
-      locations.forEach((loc) => {
-        zoomBounds.extend(loc.location);
-      });
-      // TODO: don't do this if the user has interacted with the map
-      gmap.fitBounds(zoomBounds, 20);
-      if (gmap.getZoom() > 15) {
-        gmap.setZoom(15);
-      }
-    }
-  }, [google, locations, active]);
+
+  // ensure locations are visible
+  // useEffect(() => {
+  //   if (google && map.current && locations.length > 0 && active) {
+  //     const gmap = map.current.map;
+  //     const zoomBounds = new google.maps.LatLngBounds();
+  //     locations.forEach((loc) => {
+  //       zoomBounds.extend(loc.location);
+  //     });
+  //     // TODO: don't do this if the user has interacted with the map
+  //     gmap.fitBounds(zoomBounds, 20);
+  //     if (gmap.getZoom() > 15) {
+  //       gmap.setZoom(15);
+  //     }
+  //   }
+  // }, [google, locations, active]);
+
+  // useEffect(() => {
+  //   if (map.current) {
+  //     setGoogleMap({ map: map.current.map });
+  //   }
+  //   return () => {
+  //     setGoogleMap({ map: null });
+  //   };
+  // }, [setGoogleMap]);
+
+  const infoWindow = useRef();
 
   const onSelectMarker = useCallback(
     (location) => void selectLocation(location.id),
@@ -65,6 +76,7 @@ const MapContainer = ({
     ? markers.current[selectedLocationId]
     : undefined;
 
+  // TODO: need a better way to use the info window without requiring the marker
   return (
     <Map
       ref={map}
@@ -85,12 +97,7 @@ const MapContainer = ({
       onBoundsChanged={(_props, map) => {
         const bounds = map?.getBounds();
         if (bounds) {
-          const ne = bounds.getNorthEast();
-          const sw = bounds.getSouthWest();
-          setBounds({
-            ne: ne.toJSON(),
-            sw: sw.toJSON(),
-          });
+          setBounds(bounds);
         }
       }}
     >
@@ -98,6 +105,7 @@ const MapContainer = ({
         onClose={deselectMarker}
         visible={!!currentMarker}
         marker={currentMarker}
+        ref={infoWindow}
       >
         <div>
           <div>
@@ -109,17 +117,20 @@ const MapContainer = ({
         </div>
       </InfoWindow>
 
-      {locations.map((location, idx) => (
+      {items.map((item) => (
         <Marker
-          onClick={() => onSelectMarker(location)}
+          key={item.id}
+          onClick={() => onSelectMarker(item)}
           ref={(marker) => {
             if (marker) {
-              markers.current[location.id] = marker.marker;
+              markers.current[item.id] = marker.marker;
+              if (infoWindow.current && item.id === selectedLocationId) {
+                infoWindow.current;
+              }
             }
           }}
-          key={idx}
-          title={location.name}
-          position={location.location}
+          title={item.name}
+          position={item.location}
         ></Marker>
       ))}
     </Map>
@@ -128,4 +139,5 @@ const MapContainer = ({
 
 export const Mapper = GoogleApiWrapper({
   apiKey: GOOGLE_KEY,
+  libraries: ["geometry"],
 })(MapContainer);

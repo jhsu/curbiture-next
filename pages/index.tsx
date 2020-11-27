@@ -5,7 +5,6 @@ import { AddPosting } from "../components/admin/AddPost";
 import { RequireLogin } from "../components/admin/RequireLogin";
 import Button from "../components/Button/Button";
 import { FacebookLogin } from "../components/FacebookLogin";
-import { useFirestore } from "../components/firebase";
 import { Mapper } from "../components/Mapper/Mapper";
 import { Posts } from "../components/Posts";
 import {
@@ -15,12 +14,10 @@ import {
   PlusIcon,
   UserIcon,
 } from "../components/SvgIcon";
-import { useFirebaseLocations } from "../hooks/firebase";
 import { activeView, clearPostSelection, selectedLocationAtom } from "../store";
 
 const NavBar = () => {
   const [view, setView] = useAtom(activeView);
-  // const [, setSelectedPost] = useAtom(selectedLocationAtom);
   const [, clearSelection] = useAtom(clearPostSelection);
 
   const onAddPost = useCallback(() => void setView("add-post"), [setView]);
@@ -81,15 +78,13 @@ const NavBar = () => {
 };
 
 export default function IndexPage() {
-  const db = useFirestore();
-  const [selectedId, setSelectedPost] = useAtom(selectedLocationAtom);
-  useFirebaseLocations({ db });
+  // const [, setSelectedPost] = useAtom(selectedLocationAtom);
 
   const [view] = useAtom(activeView);
 
-  const onBack = useCallback(() => void setSelectedPost(null), [
-    setSelectedPost,
-  ]);
+  // const onBack = useCallback(() => void setSelectedPost(null), [
+  //   setSelectedPost,
+  // ]);
   return (
     <div className="flex flex-col h-screen">
       <FacebookLogin />
