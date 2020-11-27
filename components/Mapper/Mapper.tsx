@@ -31,38 +31,14 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
   const [selectedLocation] = useAtom(selectedLocationAtom);
   const [{ post: selectedPost }] = useAtom(selectedPostAtom);
   const [, onSelectPost] = useAtom(updateSelectedPostAtom);
-  // const [, setGoogleMap] = useAtom(mapAtom);
 
   const markers = useRef<{ [locId: string]: google.maps.Marker }>({});
 
   const map = useRef<Map>(null);
 
-  // ensure locations are visible
-  // useEffect(() => {
-  //   if (google && map.current && locations.length > 0 && active) {
-  //     const gmap = map.current.map;
-  //     const zoomBounds = new google.maps.LatLngBounds();
-  //     locations.forEach((loc) => {
-  //       zoomBounds.extend(loc.location);
-  //     });
-  //     // TODO: don't do this if the user has interacted with the map
-  //     gmap.fitBounds(zoomBounds, 20);
-  //     if (gmap.getZoom() > 15) {
-  //       gmap.setZoom(15);
-  //     }
-  //   }
-  // }, [google, locations, active]);
-
-  // useEffect(() => {
-  //   if (map.current) {
-  //     setGoogleMap({ map: map.current.map });
-  //   }
-  //   return () => {
-  //     setGoogleMap({ map: null });
-  //   };
-  // }, [setGoogleMap]);
-
-  const infoWindow = useRef();
+  const infoWindow = useRef<
+    InfoWindow & { openWindow: (map, marker) => void }
+  >();
 
   const onSelectMarker = useCallback(
     (location: ItemLocation) => void onSelectPost(location),
@@ -131,7 +107,7 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
                 infoWindow.current &&
                 item.id === selectedPost?.id
               ) {
-                infoWindow.current?.openWindow(map.current, marker);
+                infoWindow.current.openWindow(map.current, marker);
               }
             }
           }}
