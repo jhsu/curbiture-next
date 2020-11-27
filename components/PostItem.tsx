@@ -9,7 +9,7 @@ import { Approve } from "./admin/Approve";
 interface PostItemProps {
   post: ItemLocation;
   approving?: boolean;
-  onViewOnMap: (id: string) => void;
+  onViewOnMap: (post: ItemLocation) => void;
   onViewDetails: (post: ItemLocation) => void;
 }
 export const PostItem = ({
@@ -39,7 +39,7 @@ export const PostItem = ({
             <h2 className="heading">{post.name}</h2>
           </div>
           <div>
-            <Button onClick={() => onViewOnMap(post.id)}>
+            <Button onClick={() => onViewOnMap(post)}>
               <MapIcon size="m" />
             </Button>
           </div>

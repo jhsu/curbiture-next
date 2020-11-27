@@ -7,14 +7,16 @@ import {
 } from "google-maps-react";
 import { useAtom } from "jotai";
 import * as React from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useRef } from "react";
 import { GOOGLE_KEY } from "../../google";
 import { useVisibleLocations } from "../../hooks/firebase";
 import {
   boundsAtom,
+  ItemLocation,
   locAtom,
-  // mapAtom,
   selectedLocationAtom,
+  selectedPostAtom,
+  updateSelectedPostAtom,
 } from "../../store";
 
 const containerStyle = {
@@ -26,13 +28,11 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
   useVisibleLocations();
   const [items] = useAtom(locAtom);
   const [, setBounds] = useAtom(boundsAtom);
-  const [selectedLocationId, selectLocation] = useAtom(selectedLocationAtom);
+  const [selectedLocation] = useAtom(selectedLocationAtom);
+  const [{ post: selectedPost }] = useAtom(selectedPostAtom);
+  const [, onSelectPost] = useAtom(updateSelectedPostAtom);
   // const [, setGoogleMap] = useAtom(mapAtom);
 
-  const selectedLocation = useMemo(
-    () => items.find((loc) => loc.id === selectedLocationId),
-    [items, selectedLocationId]
-  );
   const markers = useRef<{ [locId: string]: google.maps.Marker }>({});
 
   const map = useRef<Map>(null);
@@ -65,17 +65,18 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
   const infoWindow = useRef();
 
   const onSelectMarker = useCallback(
-    (location) => void selectLocation(location.id),
-    [selectLocation]
+    (location: ItemLocation) => void onSelectPost(location),
+    [onSelectPost]
   );
   const deselectMarker = useCallback(() => {
-    selectLocation(null);
-  }, [selectLocation]);
+    onSelectPost(null);
+  }, [onSelectPost]);
 
-  const currentMarker = selectedLocationId
-    ? markers.current[selectedLocationId]
+  const currentMarker = selectedPost
+    ? markers.current[selectedPost.id]
     : undefined;
 
+  // const onBoundsChanged = useCallback();
   // TODO: need a better way to use the info window without requiring the marker
   return (
     <Map
@@ -103,15 +104,16 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
     >
       <InfoWindow
         onClose={deselectMarker}
-        visible={!!currentMarker}
+        visible={!!selectedLocation}
         marker={currentMarker}
+        // position={selectedLocation}
         ref={infoWindow}
       >
         <div>
           <div>
-            <h2>{selectedLocation?.name}</h2>
-            {selectedLocation?.photo && (
-              <img width={120} src={selectedLocation?.photo} alt="item" />
+            <h2>{selectedPost?.name}</h2>
+            {selectedPost?.photo && (
+              <img width={120} src={selectedPost?.photo} alt="item" />
             )}
           </div>
         </div>
@@ -124,8 +126,12 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
           ref={(marker) => {
             if (marker) {
               markers.current[item.id] = marker.marker;
-              if (infoWindow.current && item.id === selectedLocationId) {
-                infoWindow.current;
+              if (
+                map.current &&
+                infoWindow.current &&
+                item.id === selectedPost?.id
+              ) {
+                infoWindow.current?.openWindow(map.current, marker);
               }
             }
           }}

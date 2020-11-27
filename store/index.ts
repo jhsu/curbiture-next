@@ -29,21 +29,36 @@ export const userAtom: WritableAtom<User, User> = atom<User, User | null>(null);
 export const isAdminAtom = atom<boolean>(false);
 
 export const locAtom = atom<ItemLocation[]>([]);
+locAtom.debugLabel = "Posts";
+
 export const unapprovedPosts = atom<ItemLocation[]>([]);
 export const boundsAtom: WritableAtom<
   google.maps.LatLngBounds,
   google.maps.LatLngBounds
-> = atom<google.maps.LatLngBounds | null>(null);
+> = atom<google.maps.LatLngBounds, google.maps.LatLngBounds | null>(null);
+boundsAtom.debugLabel = "Bounds";
 
-export const selectedLocationAtom: WritableAtom<
-  string | null,
-  string | null
-> = atom<string, string>(null);
+export const selectedLocationAtom = atom(
+  (get) => get(selectedPostAtom)?.post?.location
+);
+selectedLocationAtom.debugLabel = "Selected Location";
+
+export const selectedPostAtom = atom<{ post: ItemLocation | null }>({
+  post: null,
+});
+selectedPostAtom.debugLabel = "Selected Post";
+
+export const updateSelectedPostAtom = atom(
+  null,
+  (_get, set, post: ItemLocation | null) => {
+    set(selectedPostAtom, { post });
+  }
+);
 
 export const clearPostSelection = atom(
   (get) => get(selectedLocationAtom),
   (_get, set) => {
-    set(selectedLocationAtom, null);
+    set(selectedPostAtom, { post: null });
   }
 );
 
@@ -51,7 +66,15 @@ export const activeView = atom<"map" | "add-post" | "list">("list");
 
 export const mapAtom = atom<{ map: google.maps.Map }>({ map: null });
 
-export const viewOnMapAtom = atom(null, (get, set, postId: string) => {
-  set(activeView, "map");
-  set(selectedLocationAtom, postId);
-});
+export const viewOnMapAtom = atom(
+  null,
+  (_get, set, post: ItemLocation | null) => {
+    set(activeView, "map");
+    set(selectedPostAtom, { post });
+  }
+);
+
+// export const useMapDevTools = () => {
+//   useAtomDevtools(boundsAtom);
+//   useAtomDevtools(locAtom);
+// };

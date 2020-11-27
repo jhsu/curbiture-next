@@ -1,23 +1,16 @@
 import firebase from "firebase/app";
 import { useAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useGeofire } from "../components/firebase";
-import { boundsAtom, locAtom, mapAtom } from "../store";
-
-function debounce(callback: () => any, wait: number) {
-  let timeout: NodeJS.Timeout;
-  return (...args: any) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => callback.apply(this, args), wait);
-  };
-}
+import { debounce } from "../components/utils/utils";
+import { boundsAtom, locAtom } from "../store";
 
 function updateOrAdd<T extends { id: string }>(list: T[], item: T): T[] {
   let found = false;
   const updated = list.map((curr) => {
-    if (curr.id === item.id) {
+    if (!found && curr.id === item.id) {
       found = true;
-      return item;
+      return curr;
     }
     return curr;
   });
@@ -27,69 +20,72 @@ function updateOrAdd<T extends { id: string }>(list: T[], item: T): T[] {
 export const useVisibleLocations = () => {
   const [, setLocations] = useAtom(locAtom);
   const [bounds] = useAtom(boundsAtom);
-
-  // const [{ map: googlemap }] = useAtom(mapAtom);
   const geofire = useGeofire("posts_approved");
 
-  // useEffect(() => {
-  //   if (!googlemap) {
-  //     return;
-  //   }
-  //   // TODO: how do we prevent flicker?
-  //   // on bounds change, show search area button
-  //   // const dbSetBounds = debounce(() => setBounds(googlemap.getBounds()), 750);
-  //   // google.maps.event.addListener(googlemap, "bounds_changed", dbSetBounds);
+  const cancelSubscription = useRef<() => void>();
 
-  //   // return () => void google.maps.event.clearInstanceListeners(googlemap);
-  // }, [googlemap]);
+  const updateSubscription = useCallback(
+    (bounds) => {
+      // setLocations([]);
+      const center = bounds.getCenter();
+      const ne = bounds.getNorthEast();
+      const radius = google.maps.geometry.spherical.computeDistanceBetween(
+        center,
+        ne
+      );
+      const query = geofire.near({
+        center: new firebase.firestore.GeoPoint(center.lat(), center.lng()),
+        radius: radius / 1000, // km
+      });
+
+      if (cancelSubscription.current) {
+        cancelSubscription.current();
+      }
+
+      cancelSubscription.current = query.onSnapshot((snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          const doc = change.doc.data();
+          console.log(change.type, change.doc.id);
+          switch (change.type) {
+            case "modified":
+            case "added":
+              return setLocations((prev) => {
+                // TODO: handle modified
+                return updateOrAdd(prev, {
+                  id: change.doc.id,
+                  name: doc.name,
+                  created_at: doc.created_at?.toDate() as Date,
+                  location: {
+                    lat: doc.location?.latitude as number,
+                    lng: doc.location?.longitude as number,
+                  },
+                  photo: doc.photo,
+                });
+              });
+            case "removed":
+              return setLocations((prev) =>
+                prev.filter((p) => p.id !== doc.id)
+              );
+            default:
+              break;
+          }
+        });
+      });
+    },
+    [geofire]
+  );
+
+  const dbUpdateSubscription = useMemo(
+    () => debounce(updateSubscription, 500),
+    [updateSubscription]
+  );
 
   // watch for location changes within query
   useEffect(() => {
     if (!bounds || !geofire) {
       return;
     }
-    // TODO: how do we prevent flicker?
-    setLocations([]);
-
-    const center = bounds.getCenter();
-    const ne = bounds.getNorthEast();
-    const radius = google.maps.geometry.spherical.computeDistanceBetween(
-      center,
-      ne
-    );
-
-    const query = geofire.near({
-      center: new firebase.firestore.GeoPoint(center.lat(), center.lng()),
-      radius: radius / 1000, // km
-    });
-    const cancel = query.onSnapshot((snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        const doc = change.doc.data();
-        switch (change.type) {
-          case "added":
-            // return addMarker(change.doc.id, change.doc.data());
-            return setLocations((prev) => {
-              return updateOrAdd(prev, {
-                id: change.doc.id,
-                name: doc.name,
-                created_at: doc.created_at?.toDate() as Date,
-                location: {
-                  lat: doc.location?.latitude as number,
-                  lng: doc.location?.longitude as number,
-                },
-                photo: doc.photo,
-              });
-            });
-          case "modified":
-          case "removed":
-            console.log(doc);
-            return setLocations((prev) => prev.filter((p) => p.id !== doc.id));
-          default:
-            break;
-        }
-      });
-    });
-    return cancel;
+    dbUpdateSubscription(bounds);
   }, [bounds]);
 };
 

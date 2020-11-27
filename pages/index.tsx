@@ -14,7 +14,7 @@ import {
   PlusIcon,
   UserIcon,
 } from "../components/SvgIcon";
-import { activeView, clearPostSelection, selectedLocationAtom } from "../store";
+import { activeView, clearPostSelection } from "../store";
 
 const NavBar = () => {
   const [view, setView] = useAtom(activeView);
@@ -78,13 +78,8 @@ const NavBar = () => {
 };
 
 export default function IndexPage() {
-  // const [, setSelectedPost] = useAtom(selectedLocationAtom);
-
   const [view] = useAtom(activeView);
 
-  // const onBack = useCallback(() => void setSelectedPost(null), [
-  //   setSelectedPost,
-  // ]);
   return (
     <div className="flex flex-col h-screen">
       <FacebookLogin />
