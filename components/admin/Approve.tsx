@@ -32,8 +32,7 @@ export const Approve = ({ post }: { post: ItemLocation }) => {
           post.location.lng
         );
         await geoCollection.doc(post.id).set({
-          name: post.name,
-          photo: post.photo,
+          ...post,
           location: geopoint,
           created_at: post.created_at,
           approved_at: new Date(),
