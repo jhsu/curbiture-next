@@ -27,6 +27,11 @@ export const viewScopeAtom = atom<string>("posts_approved");
 
 export const userAtom: WritableAtom<User, User> = atom<User, User | null>(null);
 export const isAdminAtom = atom<boolean>(false);
+export const currentPositionAtom = atom<{
+  location: google.maps.LatLngLiteral;
+}>({
+  location: null,
+});
 
 export const locAtom = atom<ItemLocation[]>([]);
 locAtom.debugLabel = "Posts";

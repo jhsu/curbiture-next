@@ -12,6 +12,7 @@ import { useVisibleLocations } from "../../hooks/firebase";
 import {
   boundsAtom,
   clearPostSelection,
+  currentPositionAtom,
   ItemLocation,
   locAtom,
   selectedPostAtom,
@@ -30,6 +31,7 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
   const [, onClearSelection] = useAtom(clearPostSelection);
   const [{ post: selectedPost }] = useAtom(selectedPostAtom);
   const [, onSelectPost] = useAtom(updateSelectedPostAtom);
+  const [{ location }] = useAtom(currentPositionAtom);
 
   const map = useRef<Map>(null);
 
@@ -87,6 +89,12 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
     // map.current
   }, [items]);
 
+  useEffect(() => {
+    if (map.current && location) {
+      map.current.map.setCenter(location);
+    }
+  }, [location]);
+
   return (
     <Map
       ref={map}
@@ -121,9 +129,13 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
         <div>
           <div>
             <h2>{selectedPost?.name}</h2>
-            {selectedPost?.photo && (
-              <img width={120} src={selectedPost?.photo} alt="item" />
-            )}
+            <div>
+              {selectedPost?.photo ? (
+                <img width={120} src={selectedPost?.photo} alt="item" />
+              ) : (
+                <div>photo</div>
+              )}
+            </div>
           </div>
         </div>
       </InfoWindow>

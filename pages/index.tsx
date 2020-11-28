@@ -9,16 +9,18 @@ import { Mapper } from "../components/Mapper/Mapper";
 import { Posts } from "../components/Posts";
 import {
   CrosshairIcon,
+  HomeIcon,
   ListIcon,
   MapIcon,
   PlusIcon,
   UserIcon,
 } from "../components/SvgIcon";
-import { activeView, clearPostSelection } from "../store";
+import { activeView, clearPostSelection, currentPositionAtom } from "../store";
 
 const NavBar = () => {
   const [view, setView] = useAtom(activeView);
   const [, clearSelection] = useAtom(clearPostSelection);
+  const [, setUserLocation] = useAtom(currentPositionAtom);
 
   const onAddPost = useCallback(() => void setView("add-post"), [setView]);
   const onViewMap = useCallback(() => void setView("map"), [setView]);
@@ -27,13 +29,44 @@ const NavBar = () => {
     setView("list");
   }, [setView]);
 
+  const onCenterUser = useCallback(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            location: {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            },
+          });
+        },
+        () => {
+          // handleLocationError(true, infoWindow, map.getCenter());
+        }
+      );
+    }
+  }, []);
+  const onCenterHome = useCallback(() => {
+    setUserLocation({
+      location: {
+        lat: 40.75421,
+        lng: -73.983534,
+      },
+    });
+  }, []);
+
   return (
     <nav className="bottom-nav">
       <div className="nav-actions absolute right-4 bottom-20 flex flex-col">
         {view === "map" && (
-          <Button icon onClick={onViewMap} className={classnames("shadow-md")}>
-            <CrosshairIcon size="m" />
-          </Button>
+          <>
+            <Button icon onClick={onCenterUser} className="shadow-md">
+              <CrosshairIcon size="m" />
+            </Button>
+            <Button icon onClick={onCenterHome} className="shadow-md">
+              <HomeIcon size="m" />
+            </Button>
+          </>
         )}
         <RequireLogin>
           {view !== "add-post" && (
