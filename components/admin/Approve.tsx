@@ -39,16 +39,17 @@ export const Approve = ({
         );
         await geoCollection.doc(post.id).set({
           name: post.name,
-          photo: post.photo,
-          photo_path: post.photo_path,
+          photo: post.photo ?? null,
+          photo_path: post.photo_path ?? null,
           location: geopoint,
           created_at: post.created_at,
           approved_at: new Date(),
+          address: post.address ?? null,
           // required by geofire:
           coordinates: geopoint,
         });
       } catch (err) {
-        console.error("failed to approve post");
+        console.error("failed to approve post", err);
         return err;
       }
       try {
