@@ -1,6 +1,6 @@
 import * as React from "react";
+import { useCallback } from "react";
 
-import classnames from "classnames";
 import { ItemLocation } from "../store";
 import Button from "./Button/Button";
 import { MapIcon } from "./SvgIcon";
@@ -18,38 +18,29 @@ export const PostItem = ({
   onViewOnMap,
   onViewDetails,
 }: PostItemProps) => {
+  const onClick = useCallback(() => void onViewDetails(post), [post]);
   return (
     <div
       key={post.id}
-      className={classnames(
-        "posts-item",
-        "cursor-pointer flex flex-row",
-        "p-4 border-b-2"
-      )}
-      onClick={() => onViewDetails(post)}
+      className="posts-item cursor-pointer p-4 border-b-2 flex flex-row"
     >
-      {post.photo && (
-        <div className="w-10 float-left mr-1">
-          <img src={post.photo} alt={post.name} width="100%" />
-        </div>
-      )}
-      <div className="flex-1 p-1">
-        <div className="flex flex-row">
-          <div className="flex-1">
-            <h2 className="heading">{post.name}</h2>
+      <div onClick={onClick} className="flex flex-row flex-1">
+        {post.photo && (
+          <div className="w-10 float-left mr-1">
+            <img src={post.photo} alt={post.name} width="100%" />
           </div>
-          <div>
-            <Button onClick={() => onViewOnMap(post)}>
-              <MapIcon size="m" />
-            </Button>
-          </div>
+        )}
+        <div className="flex-1">
+          <h2 className="heading">{post.name}</h2>
+          <p className="text-sm">{post.address || "Unknown address."}</p>
         </div>
       </div>
-      {approving && (
-        <div className="p-1">
-          <Approve post={post} />
-        </div>
-      )}
+      <div className="flex flex-row items-center">
+        <Button onClick={() => onViewOnMap(post)}>
+          <MapIcon size="m" />
+        </Button>
+        {approving && <Approve className="ml-1" post={post} />}
+      </div>
     </div>
   );
 };

@@ -38,6 +38,8 @@ export const boundsAtom: WritableAtom<
 > = atom<google.maps.LatLngBounds, google.maps.LatLngBounds | null>(null);
 boundsAtom.debugLabel = "Bounds";
 
+export const loadingItemsAtom = atom(false);
+
 export const selectedLocationAtom = atom(
   (get) => get(selectedPostAtom)?.post?.location
 );
@@ -64,8 +66,6 @@ export const clearPostSelection = atom(
 
 export const activeView = atom<"map" | "add-post" | "list">("list");
 
-export const mapAtom = atom<{ map: google.maps.Map }>({ map: null });
-
 export const viewOnMapAtom = atom(
   null,
   (_get, set, post: ItemLocation | null) => {
@@ -73,8 +73,3 @@ export const viewOnMapAtom = atom(
     set(selectedPostAtom, { post });
   }
 );
-
-// export const useMapDevTools = () => {
-//   useAtomDevtools(boundsAtom);
-//   useAtomDevtools(locAtom);
-// };

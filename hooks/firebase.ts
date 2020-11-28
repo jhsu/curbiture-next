@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useGeofire } from "../components/firebase";
 import { debounce } from "../components/utils/utils";
-import { boundsAtom, locAtom } from "../store";
+import { boundsAtom, loadingItemsAtom, locAtom } from "../store";
 
 function updateOrAdd<T extends { id: string }>(list: T[], item: T): T[] {
   let found = false;
@@ -19,6 +19,7 @@ function updateOrAdd<T extends { id: string }>(list: T[], item: T): T[] {
 
 export const useVisibleLocations = () => {
   const [, setLocations] = useAtom(locAtom);
+  const [, setLoading] = useAtom(loadingItemsAtom);
   const [bounds] = useAtom(boundsAtom);
   const geofire = useGeofire("posts_approved");
 
@@ -26,7 +27,7 @@ export const useVisibleLocations = () => {
 
   const updateSubscription = useCallback(
     (bounds) => {
-      // setLocations([]);
+      setLoading(true);
       const center = bounds.getCenter();
       const ne = bounds.getNorthEast();
       const radius = google.maps.geometry.spherical.computeDistanceBetween(
@@ -42,29 +43,44 @@ export const useVisibleLocations = () => {
         cancelSubscription.current();
       }
 
+      // TODO: process changes more efficiently
       cancelSubscription.current = query.onSnapshot((snapshot) => {
-        snapshot.docChanges().forEach((change) => {
+        const data = snapshot.docChanges().map((change) => {
           const doc = change.doc.data();
-          console.log(change.type, change.doc.id);
+          return {
+            id: change.doc.id,
+            name: doc.name,
+            created_at: doc.created_at?.toDate() as Date,
+            location: {
+              lat: doc.location?.latitude as number,
+              lng: doc.location?.longitude as number,
+            },
+            photo: doc.photo,
+          };
+        });
+        setLocations(data);
+        setLoading(false);
+        // TODO: how do we handle future add
+        snapshot.docChanges().forEach((change) => {
           switch (change.type) {
-            case "modified":
-            case "added":
-              return setLocations((prev) => {
-                // TODO: handle modified
-                return updateOrAdd(prev, {
-                  id: change.doc.id,
-                  name: doc.name,
-                  created_at: doc.created_at?.toDate() as Date,
-                  location: {
-                    lat: doc.location?.latitude as number,
-                    lng: doc.location?.longitude as number,
-                  },
-                  photo: doc.photo,
-                });
-              });
+            //     case "modified":
+            //     case "added":
+            //       return setLocations((prev) => {
+            //         // TODO: handle modified
+            //         return updateOrAdd(prev, {
+            //           id: change.doc.id,
+            //           name: doc.name,
+            //           created_at: doc.created_at?.toDate() as Date,
+            //           location: {
+            //             lat: doc.location?.latitude as number,
+            //             lng: doc.location?.longitude as number,
+            //           },
+            //           photo: doc.photo,
+            //         });
+            //       });
             case "removed":
               return setLocations((prev) =>
-                prev.filter((p) => p.id !== doc.id)
+                prev.filter((p) => p.id !== change.doc.id)
               );
             default:
               break;

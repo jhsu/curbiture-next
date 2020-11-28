@@ -171,6 +171,29 @@ const LIST = (
   </>
 );
 
+const CLOSE = (
+  <>
+    <line
+      x1="200"
+      y1="56"
+      x2="56"
+      y2="200"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="16"
+    ></line>
+    <line
+      x1="200"
+      y1="200"
+      x2="56"
+      y2="56"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="16"
+    ></line>
+  </>
+);
+
 const USER = (
   <>
     <circle
@@ -241,4 +264,8 @@ export const ListIcon = (props: SvgProps) => {
 
 export const UserIcon = (props: SvgProps) => {
   return <SvgIcon {...props}>{USER}</SvgIcon>;
+};
+
+export const CloseIcon = (props: SvgProps) => {
+  return <SvgIcon {...props}>{CLOSE}</SvgIcon>;
 };

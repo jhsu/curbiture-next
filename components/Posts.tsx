@@ -3,11 +3,12 @@ import { useCallback } from "react";
 import { useAtom } from "jotai";
 
 import { useIsAdmin } from "../hooks/auth";
-import { ItemLocation, locAtom, viewScopeAtom } from "../store";
+import { ItemLocation, locAtom, viewScopeAtom, viewOnMapAtom } from "../store";
+
 import Button from "./Button/Button";
 import { PostItem } from "./PostItem";
 import { PostsBacklog } from "./PostsBacklog";
-import { viewOnMapAtom } from "../store/index";
+import { CloseIcon } from "./SvgIcon";
 
 export const Posts = () => {
   const [approvedPosts] = useAtom(locAtom);
@@ -26,13 +27,15 @@ export const Posts = () => {
   const approving = viewingScope === "posts_pending";
 
   return (
-    <div className="flex flex-col flex-1 relative overflow-hidden">
+    <div className="flex flex-col flex-1 relative overflow-auto">
       {viewingPost && (
-        <div className="absolute w-full h-full bg-gray-200">
-          <h2>{viewingPost.name}</h2>
-          <Button icon onClick={closeDetails}>
-            X
-          </Button>
+        <div className="absolute w-full h-full mb-16 bg-gray-200">
+          <div className="flex flex-row items-center pr-2">
+            <h2 className="flex-1 px-2">{viewingPost.name}</h2>
+            <Button icon onClick={closeDetails}>
+              <CloseIcon />
+            </Button>
+          </div>
           {viewingPost.photo && (
             <img src={viewingPost.photo} alt={viewingPost.name} width="100%" />
           )}

@@ -6,7 +6,13 @@ import { ItemLocation } from "../../store";
 import Button from "../Button/Button";
 import { useFirestore, useGeofire } from "../firebase";
 
-export const Approve = ({ post }: { post: ItemLocation }) => {
+export const Approve = ({
+  className,
+  post,
+}: {
+  post: ItemLocation;
+  className?: string;
+}) => {
   const db = useFirestore();
   const geoCollection = useGeofire("posts_approved");
 
@@ -32,7 +38,9 @@ export const Approve = ({ post }: { post: ItemLocation }) => {
           post.location.lng
         );
         await geoCollection.doc(post.id).set({
-          ...post,
+          name: post.name,
+          photo: post.photo,
+          photo_path: post.photo_path,
           location: geopoint,
           created_at: post.created_at,
           approved_at: new Date(),
@@ -50,5 +58,9 @@ export const Approve = ({ post }: { post: ItemLocation }) => {
       }
     }
   }, [db, post]);
-  return <Button onClick={approveDocument}>approve</Button>;
+  return (
+    <Button className={className} onClick={approveDocument}>
+      approve
+    </Button>
+  );
 };
