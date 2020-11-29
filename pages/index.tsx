@@ -31,6 +31,7 @@ const NavBar = () => {
 
   const onCenterUser = useCallback(() => {
     if (navigator.geolocation) {
+      // TODO: set loading current position
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setUserLocation({
@@ -41,6 +42,7 @@ const NavBar = () => {
           });
         },
         () => {
+          // TODO: notify unable to get location
           // handleLocationError(true, infoWindow, map.getCenter());
         }
       );
