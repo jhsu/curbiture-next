@@ -19,14 +19,15 @@ import { activeView, clearPostSelection, currentPositionAtom } from "../store";
 
 const NavBar = () => {
   const [view, setView] = useAtom(activeView);
-  const [, clearSelection] = useAtom(clearPostSelection);
+  // const [, clearSelection] = useAtom(clearPostSelection);
   const [, setUserLocation] = useAtom(currentPositionAtom);
+  const [, clearSelection] = useAtom(clearPostSelection);
 
   const onAddPost = useCallback(() => void setView("add-post"), [setView]);
   const onViewMap = useCallback(() => void setView("map"), [setView]);
   const onViewList = useCallback(() => {
-    clearSelection();
     setView("list");
+    clearSelection();
   }, [setView]);
 
   const onCenterUser = useCallback(() => {

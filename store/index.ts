@@ -45,36 +45,29 @@ boundsAtom.debugLabel = "Bounds";
 
 export const loadingItemsAtom = atom(false);
 
-export const selectedLocationAtom = atom(
-  (get) => get(selectedPostAtom)?.post?.location
-);
-selectedLocationAtom.debugLabel = "Selected Location";
-
 export const selectedPostAtom = atom<{ post: ItemLocation | null }>({
   post: null,
 });
 selectedPostAtom.debugLabel = "Selected Post";
 
 export const updateSelectedPostAtom = atom(
-  null,
+  (get) => get(selectedPostAtom).post,
   (_get, set, post: ItemLocation | null) => {
     set(selectedPostAtom, { post });
   }
 );
 
-export const clearPostSelection = atom(
-  (get) => get(selectedLocationAtom),
-  (_get, set) => {
-    set(selectedPostAtom, { post: null });
-  }
-);
+export const clearPostSelection = atom(null, (_get, set) => {
+  set(selectedPostAtom, { post: null });
+});
 
 export const activeView = atom<"map" | "add-post" | "list">("list");
 
 export const viewOnMapAtom = atom(
-  null,
+  (get) => get(selectedPostAtom),
   (_get, set, post: ItemLocation | null) => {
     set(activeView, "map");
     set(selectedPostAtom, { post });
   }
 );
+viewOnMapAtom.debugLabel = "View Item on Map";

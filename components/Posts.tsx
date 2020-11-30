@@ -3,18 +3,23 @@ import { useCallback } from "react";
 import { useAtom } from "jotai";
 
 import { useIsAdmin } from "../hooks/auth";
-import { ItemLocation, locAtom, viewScopeAtom, viewOnMapAtom } from "../store";
+import {
+  locAtom,
+  viewScopeAtom,
+  viewOnMapAtom,
+  updateSelectedPostAtom,
+} from "../store";
 
 import Button from "./Button/Button";
 import { PostItem } from "./PostItem";
 import { PostsBacklog } from "./PostsBacklog";
-import { CloseIcon } from "./SvgIcon";
+import { CloseIcon, MapIcon } from "./SvgIcon";
 
 export const Posts = () => {
   const [approvedPosts] = useAtom(locAtom);
   const [viewingScope, setViewScope] = useAtom(viewScopeAtom);
   const [, viewOnMap] = useAtom(viewOnMapAtom);
-  const [viewingPost, setViewItem] = React.useState<ItemLocation>(null);
+  const [viewingPost, setViewItem] = useAtom(updateSelectedPostAtom);
 
   const isAdmin = useIsAdmin();
 
@@ -39,7 +44,12 @@ export const Posts = () => {
           {viewingPost.photo && (
             <img src={viewingPost.photo} alt={viewingPost.name} width="100%" />
           )}
-          <p>{viewingPost.address}</p>
+          <div>
+            <p>{viewingPost.address}</p>
+            <Button onClick={() => viewOnMap(viewingPost)}>
+              <MapIcon size="m" />
+            </Button>
+          </div>
         </div>
       )}
 

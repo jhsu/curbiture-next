@@ -1,6 +1,3 @@
-@tailwind base;
-
-/* Write your own custom base styles here */
 @layer base {
   body {
     @apply font-sans;
@@ -84,13 +81,3 @@
     }
   }
 }
-
-/* Start purging... */
-@tailwind components;
-/* Stop purging. */
-
-/* Start purging... */
-@tailwind utilities;
-/* Stop purging. */
-
-/* Your own custom utilities */

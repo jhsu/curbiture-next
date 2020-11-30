@@ -1,6 +1,9 @@
 import { Provider } from "jotai";
 import Head from "next/head";
 import { FirebaseProvider } from "../components/firebase";
+
+import "../styles/tailwind.css";
+import "../styles/tailwind-utilities.css";
 import "../styles/index.css";
 
 function MyApp({ Component, pageProps }) {

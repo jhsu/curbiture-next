@@ -60,7 +60,6 @@ const LocationInput = ({ google }: LocationInputProps) => {
   const storage = useFireStorage();
   const [bounds] = useAtom(boundsAtom);
   const [createCollection] = useAtom(createScopeAtom);
-  const [, setActiveLocation] = useAtom(selectedLocationAtom);
 
   const geocoder = useMemo(() => google && new google.maps.Geocoder(), [
     google,
@@ -124,7 +123,6 @@ const LocationInput = ({ google }: LocationInputProps) => {
                 photo: url,
                 photo_path: photoPath,
               });
-            // setActiveLocation(key);
             reset();
           } catch (err) {
             // failed to update firestore
@@ -135,17 +133,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
         }
       }
     },
-    [
-      createCollection,
-      db,
-      geocoder,
-      google,
-      bounds,
-      reset,
-      setError,
-      setActiveLocation,
-      storage,
-    ]
+    [createCollection, db, geocoder, google, bounds, reset, setError, storage]
   );
 
   // TODO: on address change, show preview marker

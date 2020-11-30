@@ -12,16 +12,17 @@ import { useAtom } from "jotai";
 import { GOOGLE_KEY } from "../../google";
 import { useVisibleLocations } from "../../hooks/firebase";
 import {
+  activeView,
   boundsAtom,
   clearPostSelection,
   currentPositionAtom,
   ItemLocation,
   locAtom,
-  selectedPostAtom,
   updateSelectedPostAtom,
 } from "../../store";
 import { Cluster } from "@googlemaps/markerclustererplus/dist/cluster";
 import { InfoWindow } from "./InfoWindow";
+import { ItemInfo } from "./ItemInfo";
 
 const containerStyle = {
   position: "relative",
@@ -33,24 +34,20 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
   const [items] = useAtom(locAtom);
   const [, setBounds] = useAtom(boundsAtom);
   const [, onClearSelection] = useAtom(clearPostSelection);
-  const [{ post: selectedPost }] = useAtom(selectedPostAtom);
-  const [, onSelectPost] = useAtom(updateSelectedPostAtom);
+  const [selectedPost, onSelectPost] = useAtom(updateSelectedPostAtom);
   const [{ location }] = useAtom(currentPositionAtom);
+
+  const [, setView] = useAtom(activeView);
 
   const map = useRef<Map>(null);
 
   const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow>();
-
-  const onSelectMarker = useCallback(
-    (location: ItemLocation) => void onSelectPost(location),
-    [onSelectPost]
+  const [clusterItems, selectClusterItems] = useState<ItemLocation[] | null>(
+    null
   );
 
+  // used to remove out of bounds markers
   const renderedMarkers = useRef<{ [key: string]: google.maps.Marker }>({});
-
-  const currentMarker = selectedPost
-    ? renderedMarkers.current[selectedPost.id]
-    : null;
 
   const cluster = useRef<MarkerClusterer>();
 
@@ -62,46 +59,67 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
     );
   }, [google]);
 
+  const itemsLookup = useRef({});
   useEffect(() => {
-    if (!infoWindow) {
-      return;
+    if (items) {
+      itemsLookup.current = items.reduce((lookup, item) => {
+        lookup[item.id] = item;
+        return lookup;
+      }, {});
     }
-    let clusterClick: google.maps.MapsEventListener;
+  }, [items]);
 
-    if (!cluster.current) {
+  useEffect(() => {
+    if (infoWindow && !cluster.current) {
       cluster.current = new MarkerClusterer(map.current.map, [], {
         imagePath: "/map/m",
-        maxZoom: 15,
         zoomOnClick: false,
+        averageCenter: true,
       });
-      // TODO: why doesn't this work inside the above?
-      clusterClick = google.maps.event.addListener(
+      const clusterClick = google.maps.event.addListener(
         cluster.current,
         "clusterclick",
         (c: Cluster) => {
-          console.log("-== SELECTED CLUSTER ====");
+          onClearSelection();
+
           const markers = c.getMarkers();
-          // TODO: set multiple visible items
-          // TODO: mark an item as selected
-          // onSelectMarker(items[0]);
+          const posts = markers.map(
+            (m) => itemsLookup.current[m.get("postId")]
+          );
+          selectClusterItems(posts);
           infoWindow.setPosition(c.getCenter());
           infoWindow.open(map.current.map);
         }
       );
-      console.warn(cluster.current);
-    } else {
-      clusterClick = google.maps.event.addListener(
-        cluster.current,
-        "clusterclick",
-        (c: Cluster) => {
-          console.warn("wtf");
+      return () => {
+        if (clusterClick) {
+          google.maps.event.removeListener(clusterClick);
         }
-      );
+      };
     }
+  }, [infoWindow]);
 
-    const basePrefs = {
-      map: map.current.map,
-    };
+  // close the infoWindow if there isn't a selected post or cluster
+  useEffect(() => {
+    if (infoWindow && !selectedPost && !clusterItems) {
+      infoWindow.close();
+    }
+  }, [infoWindow, selectedPost, clusterItems]);
+
+  // focus on the selected Post if it exists
+  useEffect(() => {
+    if (selectedPost && infoWindow) {
+      selectClusterItems(null);
+      const target = renderedMarkers.current[selectedPost.id];
+      infoWindow.open(map.current.map, target);
+      infoWindow.setPosition(selectedPost.location);
+    }
+  }, [selectedPost, infoWindow]);
+
+  useEffect(() => {
+    if (!infoWindow) {
+      return;
+    }
 
     // remove out of scope markers
     const itemIds = items.map((i) => i.id);
@@ -118,7 +136,9 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
       delete renderedMarkers.current[id];
     });
 
+    // create markers for each item
     items.map((item) => {
+      // don't add a marker if the marker already exists
       if (renderedMarkers.current[item.id]) {
         return;
       }
@@ -127,55 +147,37 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
         item.location?.lng
       );
       const marker = new google.maps.Marker({
-        ...basePrefs,
+        map: map.current.map,
         position,
         title: item.name,
       });
-      const m2 = new google.maps.Marker({
-        ...basePrefs,
-        position,
-        title: `${item.name} 2`,
-      });
-      const m3 = new google.maps.Marker({
-        ...basePrefs,
-        position,
-        title: `${item.name} 3`,
-      });
-      google.maps.event.addListener(
-        marker,
-        "click",
-        (m: google.maps.Marker) => {
-          // onSelectMarker(item);
-          infoWindow.open(map.current.map, m);
-        }
-      );
-      google.maps.event.addListener(m2, "click", (m: google.maps.Marker) => {
-        // onSelectMarker(item);
-        infoWindow.open(map.current.map, m);
-      });
-      google.maps.event.addListener(m3, "click", (m: google.maps.Marker) => {
-        // onSelectMarker(item);
-        infoWindow.open(map.current.map, m);
+      marker.set("postId", item.id);
+
+      google.maps.event.addListener(marker, "click", () => {
+        const post = itemsLookup.current[marker.get("postId")];
+        onSelectPost(post);
+        infoWindow.open(map.current.map, marker);
       });
       cluster.current.addMarker(marker);
-      cluster.current.addMarker(m2);
-      cluster.current.addMarker(m3);
       renderedMarkers.current[item.id] = marker;
     });
-
-    return () => {
-      if (clusterClick) {
-        google.maps.event.removeListener(clusterClick);
-      }
-    };
   }, [infoWindow, items]);
 
+  // zoom to current location or home
   useEffect(() => {
     if (map.current && location) {
       map.current.map.setCenter(location);
       map.current.map.setZoom(12);
     }
   }, [location]);
+
+  const onViewDetails = useCallback(
+    (post: ItemLocation) => {
+      onSelectPost(post);
+      setView("list");
+    },
+    [onSelectPost]
+  );
 
   return (
     <Map
@@ -204,24 +206,19 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
     >
       {infoWindow && (
         <InfoWindow
-          // onClose={onClearSelection}
+          google={google}
+          onClose={onClearSelection}
           infoWindow={infoWindow}
           // visible={!!currentMarker}
           // marker={currentMarker}
           // ref={infoWindow}
         >
-          <div>
-            <div>
-              <h2>{selectedPost?.name}</h2>
-              <div>
-                {selectedPost?.photo ? (
-                  <img width={120} src={selectedPost?.photo} alt="item" />
-                ) : (
-                  <div>photo</div>
-                )}
-              </div>
-            </div>
-          </div>
+          {selectedPost && (
+            <ItemInfo post={selectedPost} onViewDetails={onViewDetails} />
+          )}
+          {clusterItems?.map((item, idx) => (
+            <ItemInfo key={idx} post={item} onViewDetails={onViewDetails} />
+          ))}
         </InfoWindow>
       )}
     </Map>
