@@ -6,7 +6,7 @@ import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { GOOGLE_KEY } from "../../google";
-import { boundsAtom, createScopeAtom, selectedLocationAtom } from "../../store";
+import { boundsAtom, createScopeAtom } from "../../store";
 import Button from "../Button/Button";
 import { useFireStorage, useFirestore } from "../firebase";
 
