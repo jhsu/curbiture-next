@@ -7,17 +7,17 @@ import { userAtom } from "../store";
 import Button from "./Button/Button";
 
 export const FacebookLogin = () => {
-  // const [errors, setErrors] = useState(null);
-  const [user, setUser] = useAtom(userAtom);
+  const [, setUser] = useAtom(userAtom);
 
   useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
+    const unsub = firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         setUser(user);
       } else {
         setUser(null);
       }
     });
+    return unsub;
   }, [setUser]);
 
   const provider = useMemo(() => {
@@ -34,27 +34,6 @@ export const FacebookLogin = () => {
         return firebase.auth().signInWithRedirect(provider);
       });
   }, [provider]);
-  const onLogout = useCallback(() => {
-    firebase
-      .auth()
-      .signOut()
-      .then(() => {
-        setUser(null);
-      });
-  }, [setUser]);
 
-  return (
-    <div>
-      {user ? (
-        <div className="py-2 px-3">
-          <span className="mr-2">{user.displayName}</span>
-          <Button className="" onClick={onLogout}>
-            Logout
-          </Button>
-        </div>
-      ) : (
-        <Button onClick={onLogin}>Login with Facebook</Button>
-      )}
-    </div>
-  );
+  return <Button onClick={onLogin}>Login with Facebook</Button>;
 };

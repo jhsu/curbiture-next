@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { useFirebaseAuth } from "hooks/firebase";
 import { userAtom } from "store";
 import Button from "components/Button/Button";
+import Link from "next/link";
 
 interface SignUpProps {
   onSignup?(): void;
@@ -30,7 +31,7 @@ export const SignUp = ({ onSignup }: SignUpProps) => {
     [auth]
   );
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="p-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
       <label className="block mb-2">
         <span className="block">E-mail</span>
         <input
@@ -40,7 +41,7 @@ export const SignUp = ({ onSignup }: SignUpProps) => {
           id="user_email"
           type="email"
           required
-          className="block w-full p-1 mt-1 focus:ring focus:outline-none"
+          className="text-input"
         />
       </label>
       <label className="block mb-2">
@@ -53,7 +54,7 @@ export const SignUp = ({ onSignup }: SignUpProps) => {
           type="password"
           required
           min="6"
-          className="block w-full p-1 mt-1 focus:ring focus:outline-none"
+          className="text-input"
         />
       </label>
       <label className="block mb-2">
@@ -70,14 +71,19 @@ export const SignUp = ({ onSignup }: SignUpProps) => {
           type="password"
           required
           min="6"
-          className="block w-full p-1 mt-1 focus:ring focus:outline-none"
+          className="text-input"
         />
         {errors?.password_confirmation && (
           <div className="text-red-300">Your passwords must match</div>
         )}
       </label>
 
-      <Button type="submit">submit</Button>
+      <div>
+        <Button type="submit">submit</Button>
+        <Link href="/">
+          <a>cancel</a>
+        </Link>
+      </div>
     </form>
   );
 };

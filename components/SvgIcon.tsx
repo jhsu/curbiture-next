@@ -280,6 +280,19 @@ const TRASH = (
   </>
 );
 
+const ARROW_FAT_LEFT = (
+  <>
+    <path
+      d="M120,32,24,128l96,96V176h88a8,8,0,0,0,8-8V88a8,8,0,0,0-8-8H120Z"
+      fill="none"
+      stroke="#000000"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="16"
+    ></path>
+  </>
+);
+
 interface SvgProps extends React.HTMLAttributes<SVGElement> {
   as?: string;
   size?: "s" | "m" | "l";
@@ -342,4 +355,8 @@ export const HomeIcon = (props: SvgProps) => {
 
 export const TrashIcon = (props: SvgProps) => {
   return <SvgIcon {...props}>{TRASH}</SvgIcon>;
+};
+
+export const ArrowLeft = (props: SvgProps) => {
+  return <SvgIcon {...props}>{ARROW_FAT_LEFT}</SvgIcon>;
 };

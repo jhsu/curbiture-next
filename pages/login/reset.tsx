@@ -1,27 +1,13 @@
 import * as React from "react";
-import { useRouter } from "next/router";
 
-import { Login as LoginForm } from "components/auth/Login";
 import Button from "components/Button/Button";
 import { useFirebaseAuth } from "hooks/firebase";
 import { useForm } from "react-hook-form";
+import Link from "next/link";
 
 const Reset = () => {
-  const router = useRouter();
   const auth = useFirebaseAuth();
   const { handleSubmit, register, reset } = useForm();
-
-  const goHome = React.useCallback(() => {
-    router.push("/");
-  }, [router]);
-
-  const goLogin = React.useCallback(() => {
-    router.push("/login");
-  }, [router]);
-
-  const goSignUp = React.useCallback(() => {
-    router.push("/signup");
-  }, [router]);
 
   const [resetSent, setResetSent] = React.useState(false);
 
@@ -43,7 +29,7 @@ const Reset = () => {
       <h2>Forgot your password?</h2>
       <p>Enter your email address to reset your password.</p>
       {resetSent && <div>Reset email has been sent.</div>}
-      <form onSubmit={handleSubmit(onStartReset)}>
+      <form onSubmit={handleSubmit(onStartReset)} className="auth-form">
         <label>
           <span>Email</span>
           <input
@@ -52,15 +38,21 @@ const Reset = () => {
             type="email"
             placeholder="E-mail address"
             required
-            className="block w-full"
+            className="text-input"
           />
         </label>
         <Button type="submit">Submit</Button>
       </form>
-      <Button onClick={goHome}>cancel</Button>
+      <Link href="/">
+        <a>cancel</a>
+      </Link>
       <div>
-        <Button onClick={goSignUp}>Sign up</Button>
-        <Button onClick={goLogin}>Go login</Button>
+        <Link href="/signup">
+          <a>Sign up</a>
+        </Link>
+        <Link href="/login">
+          <a>Login</a>
+        </Link>
       </div>
     </div>
   );

@@ -2,6 +2,8 @@ import classnames from "classnames";
 import { useAtom } from "jotai";
 import { useCallback } from "react";
 
+import Link from "next/link";
+
 import { AddPosting } from "components/admin/AddPost";
 import { RequireLogin } from "components/admin/RequireLogin";
 import Button from "components/Button/Button";
@@ -9,6 +11,7 @@ import { FacebookLogin } from "components/FacebookLogin";
 import { Mapper } from "components/Mapper/Mapper";
 import { Posts } from "components/Posts";
 import {
+  ArrowLeft,
   CrosshairIcon,
   HomeIcon,
   ListIcon,
@@ -21,8 +24,10 @@ import {
   clearPostSelection,
   currentPositionAtom,
   showAddPostAtom,
+  userAtom,
 } from "../store";
-import { useRouter } from "next/router";
+import { NotLoggedIn } from "components/auth/NotLoggedIn";
+import { useFirebaseAuth } from "hooks/firebase";
 
 const NavBar = () => {
   const [view, setView] = useAtom(activeView);
@@ -125,24 +130,42 @@ const NavBar = () => {
 
 export default function IndexPage() {
   const [view] = useAtom(activeView);
-  const router = useRouter();
-
+  const auth = useFirebaseAuth();
+  const [currentUser, setUser] = useAtom(userAtom);
   const [showAddPost, setShowAddPost] = useAtom(showAddPostAtom);
+
+  const onSignout = useCallback(async () => {
+    await auth.signOut();
+    setUser(null);
+  }, [auth, setUser]);
 
   return (
     <>
       <div className="flex flex-col h-screen">
-        <div>
-          <FacebookLogin />
-          <Button onClick={() => void router.push("/signup")}>Sign up</Button>
+        <div className="p-1">
+          <NotLoggedIn>
+            <FacebookLogin />
+            <Link href="/signup">
+              <a>Sign up</a>
+            </Link>
+            <Link href="/login">
+              <a>Login</a>
+            </Link>
+          </NotLoggedIn>
+          <RequireLogin>
+            <span className="mr-2">{currentUser.displayName}</span>
+            <Button onClick={onSignout}>Logout</Button>
+          </RequireLogin>
         </div>
         <div className="flex-1 h-full overflow-auto flex flex-row">
           {showAddPost && (
             <div className="absolute h-full w-full bg-white z-10">
-              <Button onClick={() => void setShowAddPost(false)}>back</Button>
-              <RequireLogin>
-                <AddPosting />
-              </RequireLogin>
+              <div className="flex flex-row self-start">
+                <Button onClick={() => void setShowAddPost(false)}>
+                  <ArrowLeft size="m" />
+                </Button>
+              </div>
+              <AddPosting />
             </div>
           )}
           <div

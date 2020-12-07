@@ -2,7 +2,7 @@ import * as React from "react";
 import { useRouter } from "next/router";
 
 import { SignUp } from "components/auth/SignUp";
-import Button from "components/Button/Button";
+import Link from "next/link";
 
 const SignUpPage = () => {
   const router = useRouter();
@@ -12,7 +12,9 @@ const SignUpPage = () => {
   return (
     <div>
       <SignUp onSignup={goHome} />
-      <Button onClick={goHome}>cancel</Button>
+      <Link href="/login">
+        <a>Already have an account? Login</a>
+      </Link>
     </div>
   );
 };
