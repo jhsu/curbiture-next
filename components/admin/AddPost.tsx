@@ -79,15 +79,44 @@ const LocationInput = ({ google }: LocationInputProps) => {
   const photo = watch("photo");
 
   const onSubmit = useCallback(
-    async ({ address, name, photo }) => {
+    async ({
+      address,
+      name,
+      photo,
+    }: {
+      address: string;
+      name: string;
+      photo: File[];
+    }) => {
       if (db && google && storage) {
         try {
           const loc = await geocodeLocation(geocoder, {
             address,
             bounds,
           });
-          let url: string | null = null;
-          let photoPath: string;
+
+          // create the record
+          let postRef: firebase.firestore.DocumentReference;
+          try {
+            const key = `${loc.toString()}-${new Date().getTime()}`;
+            const timestamp = new Date();
+            postRef = db.collection(createCollection).doc(key);
+
+            await postRef.set({
+              name,
+              created_at: timestamp,
+              address,
+              location: new firebase.firestore.GeoPoint(loc.lat(), loc.lng()),
+              // photo: url,
+              // photo_path: photoPath,
+            });
+          } catch (err) {
+            setError("post", {
+              type: "manual",
+              message: err.message,
+            });
+          }
+
           if (photo && photo[0]) {
             const file = photo[0];
             // upload photo
@@ -95,12 +124,15 @@ const LocationInput = ({ google }: LocationInputProps) => {
               contentType: file.type,
             };
             try {
-              // TODO: need to generate a unique name
-              const snapshot = await storage
-                .child(`posts/${file.name}`)
-                .put(file, metadata);
-              photoPath = snapshot.ref.fullPath;
-              url = await snapshot.ref.getDownloadURL();
+              const lastDot = file.name.lastIndexOf(".");
+              const ext = file.name.substring(lastDot + 1);
+              const dest = `posts/${postRef.id}.${ext}`;
+              const snapshot = await storage.child(dest).put(file, metadata);
+              const url = await snapshot.ref.getDownloadURL();
+              await postRef.update({
+                photo: url,
+                photo_path: dest,
+              });
             } catch (err) {
               setError("photo", {
                 type: "manual",
@@ -108,29 +140,11 @@ const LocationInput = ({ google }: LocationInputProps) => {
               });
             }
           }
-
-          try {
-            const key = `${loc.toString()}-${new Date().getTime()}`;
-            const timestamp = new Date();
-            await db
-              .collection(createCollection)
-              .doc(key)
-              .set({
-                name,
-                created_at: timestamp,
-                address,
-                location: new firebase.firestore.GeoPoint(loc.lat(), loc.lng()),
-                photo: url,
-                photo_path: photoPath,
-              });
-            reset();
-          } catch (err) {
-            // failed to update firestore
-          }
         } catch (err) {
           // TODO: handle error
           console.error("failed to geocode location");
         }
+        reset();
       }
     },
     [createCollection, db, geocoder, google, bounds, reset, setError, storage]

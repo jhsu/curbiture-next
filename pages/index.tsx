@@ -1,6 +1,7 @@
 import classnames from "classnames";
 import { useAtom } from "jotai";
 import { useCallback } from "react";
+
 import { AddPosting } from "../components/admin/AddPost";
 import { RequireLogin } from "../components/admin/RequireLogin";
 import Button from "../components/Button/Button";
@@ -15,15 +16,25 @@ import {
   PlusIcon,
   UserIcon,
 } from "../components/SvgIcon";
-import { activeView, clearPostSelection, currentPositionAtom } from "../store";
+import {
+  activeView,
+  clearPostSelection,
+  currentPositionAtom,
+  showAddPostAtom,
+} from "../store";
+
+import "react-spring-bottom-sheet/dist/style.css";
 
 const NavBar = () => {
   const [view, setView] = useAtom(activeView);
+  const [showAddPost, setShowAddPost] = useAtom(showAddPostAtom);
   // const [, clearSelection] = useAtom(clearPostSelection);
   const [, setUserLocation] = useAtom(currentPositionAtom);
   const [, clearSelection] = useAtom(clearPostSelection);
 
-  const onAddPost = useCallback(() => void setView("add-post"), [setView]);
+  const onAddPost = useCallback(() => void setShowAddPost(true), [
+    setShowAddPost,
+  ]);
   const onViewMap = useCallback(() => void setView("map"), [setView]);
   const onViewList = useCallback(() => {
     setView("list");
@@ -60,19 +71,19 @@ const NavBar = () => {
 
   return (
     <nav className="bottom-nav">
-      <div className="nav-actions absolute right-4 bottom-20 flex flex-col">
-        {view === "map" && (
-          <>
-            <Button icon onClick={onCenterUser} className="shadow-md">
-              <CrosshairIcon size="m" />
-            </Button>
-            <Button icon onClick={onCenterHome} className="shadow-md">
-              <HomeIcon size="m" />
-            </Button>
-          </>
-        )}
-        <RequireLogin>
-          {view !== "add-post" && (
+      <div className={classnames({ hidden: showAddPost })}>
+        <div className="nav-actions absolute right-4 bottom-20 flex-col">
+          {view === "map" && (
+            <>
+              <Button icon onClick={onCenterUser} className="shadow-md">
+                <CrosshairIcon size="m" />
+              </Button>
+              <Button icon onClick={onCenterHome} className="shadow-md">
+                <HomeIcon size="m" />
+              </Button>
+            </>
+          )}
+          <RequireLogin>
             <Button
               icon
               onClick={onAddPost}
@@ -80,8 +91,8 @@ const NavBar = () => {
             >
               <PlusIcon size="m" />
             </Button>
-          )}
-        </RequireLogin>
+          </RequireLogin>
+        </div>
       </div>
       <button
         className={classnames("nav-action", {
@@ -116,31 +127,38 @@ const NavBar = () => {
 export default function IndexPage() {
   const [view] = useAtom(activeView);
 
+  const [showAddPost, setShowAddPost] = useAtom(showAddPostAtom);
+
   return (
-    <div className="flex flex-col h-screen">
-      <FacebookLogin />
-      <div className="flex-1 h-full overflow-auto flex flex-row">
-        <div
-          className={classnames(
-            "bg-gray-100",
-            "w-full md:w-1/3 md:max-w-xs h-full overflow-auto flex flex-col",
-            {
-              hidden: view === "map",
-            }
-          )}
-        >
-          {view === "add-post" && (
-            <RequireLogin>
-              <AddPosting />
-            </RequireLogin>
-          )}
-          {view === "list" && <Posts />}
+    <>
+      <div className="flex flex-col h-screen">
+        <div>
+          <FacebookLogin />
         </div>
-        <div className={classnames("flex-1 map-container")}>
-          <Mapper active={view === "map"} />
+        <div className="flex-1 h-full overflow-auto flex flex-row">
+          {showAddPost && (
+            <div className="absolute h-full w-full bg-white z-10">
+              <Button onClick={() => void setShowAddPost(false)}>back</Button>
+              <RequireLogin>
+                <AddPosting />
+              </RequireLogin>
+            </div>
+          )}
+          <div
+            className={classnames(
+              "bg-gray-100",
+              "w-full md:w-1/3 md:max-w-xs h-full overflow-auto flex flex-col",
+              { hidden: view !== "list" }
+            )}
+          >
+            {view === "list" && <Posts />}
+          </div>
+          <div className={classnames("flex-1 map-container")}>
+            <Mapper active={view === "map" && !showAddPost} />
+          </div>
+          <NavBar />
         </div>
-        <NavBar />
       </div>
-    </div>
+    </>
   );
 }

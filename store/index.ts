@@ -61,7 +61,18 @@ export const clearPostSelection = atom(null, (_get, set) => {
   set(selectedPostAtom, { post: null });
 });
 
-export const activeView = atom<"map" | "add-post" | "list">("list");
+export const showAddPostAtom = atom(false);
+
+export type View = "map" | "list";
+export const viewAtom = atom<View>("map");
+
+export const activeView = atom(
+  (get) => get(viewAtom),
+  (_get, set, view: View) => {
+    set(viewAtom, view);
+    set(showAddPostAtom, false);
+  }
+);
 
 export const viewOnMapAtom = atom(
   (get) => get(selectedPostAtom),

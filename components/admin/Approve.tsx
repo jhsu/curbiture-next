@@ -2,9 +2,11 @@ import firebase from "firebase/app";
 import "firebase/firestore";
 import * as React from "react";
 import { useCallback } from "react";
+import classnames from "classnames";
 import { ItemLocation } from "../../store";
 import Button from "../Button/Button";
 import { useFirestore, useGeofire } from "../firebase";
+import { TrashIcon } from "../SvgIcon";
 
 export const Approve = ({
   className,
@@ -40,7 +42,7 @@ export const Approve = ({
         await geoCollection.doc(post.id).set({
           name: post.name,
           photo: post.photo ?? null,
-          photo_path: post.photo_path ?? null,
+          photo_path: post.photo_path,
           location: geopoint,
           created_at: post.created_at,
           approved_at: new Date(),
@@ -59,9 +61,28 @@ export const Approve = ({
       }
     }
   }, [db, post]);
+
+  const onRemovePost = useCallback(async () => {
+    if (db && post) {
+      try {
+        await db.collection("posts_pending").doc(post.id).delete();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }, [db, post]);
+
   return (
-    <Button className={className} onClick={approveDocument}>
-      approve
-    </Button>
+    <>
+      <Button
+        className={classnames(className, "mr-1")}
+        onClick={approveDocument}
+      >
+        approve
+      </Button>
+      <Button onClick={onRemovePost}>
+        <TrashIcon size="m" />
+      </Button>
+    </>
   );
 };

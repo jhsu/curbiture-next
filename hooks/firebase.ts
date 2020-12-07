@@ -142,6 +142,7 @@ export const useFirebaseLocations = (
                         lng: postDoc.location?.longitude as number,
                       },
                       photo: postDoc.photo,
+                      photo_path: postDoc.photo_path,
                     };
                   }
                   return il;
@@ -158,6 +159,7 @@ export const useFirebaseLocations = (
                     lng: postDoc.location?.longitude as number,
                   },
                   photo: postDoc.photo,
+                  photo_path: postDoc.photo_path,
                 };
                 return [postData, ...prev];
               }
