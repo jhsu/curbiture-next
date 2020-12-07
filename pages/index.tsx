@@ -2,19 +2,19 @@ import classnames from "classnames";
 import { useAtom } from "jotai";
 import { useCallback } from "react";
 
-import { AddPosting } from "../components/admin/AddPost";
-import { RequireLogin } from "../components/admin/RequireLogin";
-import Button from "../components/Button/Button";
-import { FacebookLogin } from "../components/FacebookLogin";
-import { Mapper } from "../components/Mapper/Mapper";
-import { Posts } from "../components/Posts";
+import { AddPosting } from "components/admin/AddPost";
+import { RequireLogin } from "components/admin/RequireLogin";
+import Button from "components/Button/Button";
+import { FacebookLogin } from "components/FacebookLogin";
+import { Mapper } from "components/Mapper/Mapper";
+import { Posts } from "components/Posts";
 import {
   CrosshairIcon,
   HomeIcon,
   ListIcon,
   MapIcon,
   PlusIcon,
-  UserIcon,
+  // UserIcon,
 } from "../components/SvgIcon";
 import {
   activeView,
@@ -22,8 +22,7 @@ import {
   currentPositionAtom,
   showAddPostAtom,
 } from "../store";
-
-import "react-spring-bottom-sheet/dist/style.css";
+import { useRouter } from "next/router";
 
 const NavBar = () => {
   const [view, setView] = useAtom(activeView);
@@ -94,14 +93,14 @@ const NavBar = () => {
           </RequireLogin>
         </div>
       </div>
-      <button
+      {/* <button
         className={classnames("nav-action", {
           "nav-action__active": false,
         })}
       >
         <UserIcon size="s" className="nav-action-button" />
         <span>User</span>
-      </button>
+      </button> */}
       <button
         className={classnames("nav-action", {
           "nav-action__active": view === "list",
@@ -126,6 +125,7 @@ const NavBar = () => {
 
 export default function IndexPage() {
   const [view] = useAtom(activeView);
+  const router = useRouter();
 
   const [showAddPost, setShowAddPost] = useAtom(showAddPostAtom);
 
@@ -134,6 +134,7 @@ export default function IndexPage() {
       <div className="flex flex-col h-screen">
         <div>
           <FacebookLogin />
+          <Button onClick={() => void router.push("/signup")}>Sign up</Button>
         </div>
         <div className="flex-1 h-full overflow-auto flex flex-row">
           {showAddPost && (

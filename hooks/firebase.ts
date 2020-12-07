@@ -5,17 +5,22 @@ import { useGeofire } from "../components/firebase";
 import { debounce } from "../components/utils/utils";
 import { boundsAtom, loadingItemsAtom, locAtom } from "../store";
 
-function updateOrAdd<T extends { id: string }>(list: T[], item: T): T[] {
-  let found = false;
-  const updated = list.map((curr) => {
-    if (!found && curr.id === item.id) {
-      found = true;
-      return curr;
-    }
-    return curr;
-  });
-  return found ? updated : [...updated, item];
-}
+// function updateOrAdd<T extends { id: string }>(list: T[], item: T): T[] {
+//   let found = false;
+//   const updated = list.map((curr) => {
+//     if (!found && curr.id === item.id) {
+//       found = true;
+//       return curr;
+//     }
+//     return curr;
+//   });
+//   return found ? updated : [...updated, item];
+// }
+
+export const useFirebaseAuth = () => {
+  const auth = useMemo(() => firebase.auth(), [firebase]);
+  return auth;
+};
 
 export const useVisibleLocations = () => {
   const [, setLocations] = useAtom(locAtom);

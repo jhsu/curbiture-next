@@ -20,7 +20,8 @@
     "typeRoots": [
       "./types",
       "./node_modules/@types"
-    ]
+    ],
+    "baseUrl": "."
   },
   "include": [
     "next-env.d.ts",

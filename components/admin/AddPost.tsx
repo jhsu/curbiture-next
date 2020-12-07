@@ -65,7 +65,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
     google,
   ]);
 
-  const [formError, setFormError] = useState<Error | null>(null);
+  const [formError] = useState<Error | null>(null);
 
   const {
     register,
