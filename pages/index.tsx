@@ -28,6 +28,7 @@ import {
 } from "../store";
 import { NotLoggedIn } from "components/auth/NotLoggedIn";
 import { useFirebaseAuth } from "hooks/firebase";
+import { CurrentUserDisplay } from "components/auth/CurrentUserDisplay";
 
 const NavBar = () => {
   const [view, setView] = useAtom(activeView);
@@ -131,7 +132,7 @@ const NavBar = () => {
 export default function IndexPage() {
   const [view] = useAtom(activeView);
   const auth = useFirebaseAuth();
-  const [currentUser, setUser] = useAtom(userAtom);
+  const [, setUser] = useAtom(userAtom);
   const [showAddPost, setShowAddPost] = useAtom(showAddPostAtom);
 
   const onSignout = useCallback(async () => {
@@ -152,10 +153,7 @@ export default function IndexPage() {
               <a>Login</a>
             </Link>
           </NotLoggedIn>
-          <RequireLogin>
-            <span className="mr-2">{currentUser.displayName}</span>
-            <Button onClick={onSignout}>Logout</Button>
-          </RequireLogin>
+          <CurrentUserDisplay onSignout={onSignout} />
         </div>
         <div className="flex-1 h-full overflow-auto flex flex-row">
           {showAddPost && (
