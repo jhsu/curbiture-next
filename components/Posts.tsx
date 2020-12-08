@@ -14,8 +14,10 @@ import Button from "./Button/Button";
 import { PostItem } from "./PostItem";
 import { PostsBacklog } from "./PostsBacklog";
 import { CloseIcon, MapIcon } from "./SvgIcon";
+import { useRouter } from "next/router";
 
 export const Posts = () => {
+  const router = useRouter();
   const [approvedPosts] = useAtom(locAtom);
   const [viewingScope, setViewScope] = useAtom(viewScopeAtom);
   const [, viewOnMap] = useAtom(viewOnMapAtom);
@@ -77,7 +79,9 @@ export const Posts = () => {
                     key={post.id}
                     post={post}
                     onViewOnMap={viewOnMap}
-                    onViewDetails={setViewItem}
+                    onViewDetails={(post) => {
+                      router.push(`/posts/${post.id}`);
+                    }}
                   />
                 );
               })}

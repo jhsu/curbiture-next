@@ -23,6 +23,7 @@ import {
 import { Cluster } from "@googlemaps/markerclustererplus/dist/cluster";
 import { InfoWindow } from "./InfoWindow";
 import { ItemInfo } from "./ItemInfo";
+import { useRouter } from "next/router";
 
 const containerStyle = {
   position: "relative",
@@ -45,6 +46,8 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
   const [clusterItems, selectClusterItems] = useState<ItemLocation[] | null>(
     null
   );
+
+  const router = useRouter();
 
   // used to remove out of bounds markers
   const renderedMarkers = useRef<{ [key: string]: google.maps.Marker }>({});
@@ -214,7 +217,10 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
           // ref={infoWindow}
         >
           {selectedPost && (
-            <ItemInfo post={selectedPost} onViewDetails={onViewDetails} />
+            <ItemInfo
+              post={selectedPost}
+              onViewDetails={(item) => void router.push(`/posts/${item.id}`)}
+            />
           )}
           {clusterItems?.map((item, idx) => (
             <ItemInfo key={idx} post={item} onViewDetails={onViewDetails} />

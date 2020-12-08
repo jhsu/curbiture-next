@@ -82,3 +82,5 @@ export const viewOnMapAtom = atom(
   }
 );
 viewOnMapAtom.debugLabel = "View Item on Map";
+
+export const bottomNavAtom = atom({ showActions: true });

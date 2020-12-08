@@ -2,6 +2,7 @@ import firebase from "firebase/app";
 import "firebase/firestore";
 import { GoogleAPI, GoogleApiWrapper } from "google-maps-react";
 import { useAtom } from "jotai";
+import { useRouter } from "next/router";
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -9,6 +10,10 @@ import { GOOGLE_KEY } from "../../google";
 import { boundsAtom, createScopeAtom } from "../../store";
 import Button from "../Button/Button";
 import { useFireStorage, useFirestore } from "../firebase";
+
+import short from "short-uuid";
+
+const translator = short();
 
 const PhotoPreview = ({ file }: { file: File }) => {
   const imgRef = useRef<HTMLImageElement>(null);
@@ -56,6 +61,7 @@ interface LocationInputProps {
   google: GoogleAPI;
 }
 const LocationInput = ({ google }: LocationInputProps) => {
+  const router = useRouter();
   const db = useFirestore();
   const storage = useFireStorage();
   const [bounds] = useAtom(boundsAtom);
@@ -89,6 +95,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
       photo: File[];
     }) => {
       if (db && google && storage) {
+        const key = translator.new();
         try {
           const loc = await geocodeLocation(geocoder, {
             address,
@@ -97,8 +104,28 @@ const LocationInput = ({ google }: LocationInputProps) => {
 
           // create the record
           let postRef: firebase.firestore.DocumentReference;
+          let photoUrl: string;
+          let photoPath: string;
+
+          if (photo && photo[0]) {
+            const file = photo[0];
+            // upload photo
+            const metadata = {
+              contentType: file.type,
+            };
+            const lastDot = file.name.lastIndexOf(".");
+            const ext = file.name.substring(lastDot + 1);
+            photoPath = `posts/${key}.${ext}`;
+            const snapshot = await storage.child(photoPath).put(file, metadata);
+            photoUrl = await snapshot.ref.getDownloadURL();
+            // await postRef.update({
+            //   photo: url,
+            //   photo_path: dest,
+            // });
+          }
+
           try {
-            const key = `${loc.toString()}-${new Date().getTime()}`;
+            // const key = `${loc.toString()}-${new Date().getTime()}`;
             const timestamp = new Date();
             postRef = db.collection(createCollection).doc(key);
 
@@ -107,8 +134,8 @@ const LocationInput = ({ google }: LocationInputProps) => {
               created_at: timestamp,
               address,
               location: new firebase.firestore.GeoPoint(loc.lat(), loc.lng()),
-              // photo: url,
-              // photo_path: photoPath,
+              photo: photoUrl,
+              photo_path: photoPath,
             });
           } catch (err) {
             setError("post", {
@@ -117,29 +144,9 @@ const LocationInput = ({ google }: LocationInputProps) => {
             });
           }
 
-          if (photo && photo[0]) {
-            const file = photo[0];
-            // upload photo
-            const metadata = {
-              contentType: file.type,
-            };
-            try {
-              const lastDot = file.name.lastIndexOf(".");
-              const ext = file.name.substring(lastDot + 1);
-              const dest = `posts/${postRef.id}.${ext}`;
-              const snapshot = await storage.child(dest).put(file, metadata);
-              const url = await snapshot.ref.getDownloadURL();
-              await postRef.update({
-                photo: url,
-                photo_path: dest,
-              });
-            } catch (err) {
-              setError("photo", {
-                type: "manual",
-                message: err.message,
-              });
-            }
-          }
+          // TODO: redirect to the specific item location
+          // TODO: show notification
+          router.push("/");
         } catch (err) {
           // TODO: handle error
           console.error("failed to geocode location");
@@ -147,7 +154,17 @@ const LocationInput = ({ google }: LocationInputProps) => {
         reset();
       }
     },
-    [createCollection, db, geocoder, google, bounds, reset, setError, storage]
+    [
+      createCollection,
+      db,
+      geocoder,
+      google,
+      bounds,
+      reset,
+      setError,
+      storage,
+      router,
+    ]
   );
 
   // TODO: on address change, show preview marker
