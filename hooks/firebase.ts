@@ -97,7 +97,7 @@ export const useVisibleLocations = () => {
   );
 
   const dbUpdateSubscription = useMemo(
-    () => debounce(updateSubscription, 500),
+    () => debounce(updateSubscription, 400),
     [updateSubscription]
   );
 
@@ -107,6 +107,7 @@ export const useVisibleLocations = () => {
       return;
     }
     dbUpdateSubscription(bounds);
+    // TODO: cancel on unmount
   }, [bounds]);
 };
 

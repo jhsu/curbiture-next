@@ -1,4 +1,4 @@
-export function debounce(callback: (args: any) => any, wait: number) {
+export function debounce(callback: (...args: any) => any, wait: number) {
   let timeout: NodeJS.Timeout;
   return (...args: any) => {
     clearTimeout(timeout);

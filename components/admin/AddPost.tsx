@@ -5,13 +5,21 @@ import { useAtom } from "jotai";
 import { useRouter } from "next/router";
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { GOOGLE_KEY } from "../../google";
-import { boundsAtom, createScopeAtom } from "../../store";
+import {
+  boundsAtom,
+  createScopeAtom,
+  showAddPostAtom,
+  updateSelectedPostAtom,
+} from "../../store";
 import Button from "../Button/Button";
 import { useFireStorage, useFirestore } from "../firebase";
 
 import short from "short-uuid";
+import PostPreview from "components/Mapper/PostPreview";
+import { debounce } from "components/utils/utils";
+import Link from "next/link";
 
 const translator = short();
 
@@ -26,7 +34,9 @@ const PhotoPreview = ({ file }: { file: File }) => {
     };
     reader.readAsDataURL(file);
   }, [file]);
-  return <img style={{ width: "100%" }} ref={imgRef} alt="preview" />;
+  return (
+    <img className="mb-4" style={{ height: 100 }} ref={imgRef} alt="preview" />
+  );
 };
 
 const geocodeLocation = async (
@@ -67,6 +77,10 @@ const LocationInput = ({ google }: LocationInputProps) => {
   const [bounds] = useAtom(boundsAtom);
   const [createCollection] = useAtom(createScopeAtom);
 
+  const [, setShowAddPost] = useAtom(showAddPostAtom);
+
+  const [, onSelectPost] = useAtom(updateSelectedPostAtom);
+
   const geocoder = useMemo(() => google && new google.maps.Geocoder(), [
     google,
   ]);
@@ -79,6 +93,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
     reset,
     watch,
     setError,
+    control,
     formState: { isSubmitting },
   } = useForm();
 
@@ -124,9 +139,10 @@ const LocationInput = ({ google }: LocationInputProps) => {
             // });
           }
 
+          const timestamp = new Date();
+
           try {
             // const key = `${loc.toString()}-${new Date().getTime()}`;
-            const timestamp = new Date();
             postRef = db.collection(createCollection).doc(key);
 
             await postRef.set({
@@ -144,8 +160,20 @@ const LocationInput = ({ google }: LocationInputProps) => {
             });
           }
 
-          // TODO: redirect to the specific item location
-          // TODO: show notification
+          setShowAddPost(false);
+          // TODO: probably show on map
+          onSelectPost({
+            id: key,
+            name,
+            created_at: timestamp,
+            address,
+            location: {
+              lat: loc.lat(),
+              lng: loc.lng(),
+            },
+            photo: photoUrl,
+            photo_path: photoPath,
+          });
           router.push("/");
         } catch (err) {
           // TODO: handle error
@@ -167,60 +195,99 @@ const LocationInput = ({ google }: LocationInputProps) => {
     ]
   );
 
-  // TODO: on address change, show preview marker
-  // TODO: add a debounce on Change to search and view the location
+  const [loc, setLoc] = useState<google.maps.LatLng | null>(null);
+  const onAddressChangeDb = useMemo(
+    () =>
+      debounce((...args) => {
+        const [, { address }] = args;
+        if (address && address !== "") {
+          geocodeLocation(...args).then((loc) => setLoc(loc));
+        } else {
+          setLoc(null);
+        }
+      }, 500),
+    [geocodeLocation]
+  );
+
+  // TODO: better file input
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="mb-6 py-4 px-3 pb-24">
-      {formError && <div>{formError.message}</div>}
-      <div className="flex flex-col mb-4">
-        <label htmlFor="post_photo" className="field-label">
-          photo
-        </label>
-        <input
-          id="post_photo"
-          name="photo"
-          disabled={isSubmitting}
-          ref={register()}
-          type="file"
-          accept="image/*;capture=camera"
-          className="field"
-        />
+    <div className="mb-6 py-4 px-3 flex flex-col h-full overflow-auto">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {formError && <div>{formError.message}</div>}
+        <div className="flex flex-col mb-4">
+          <label htmlFor="post_photo" className="field-label">
+            photo
+          </label>
+          <input
+            id="post_photo"
+            name="photo"
+            disabled={isSubmitting}
+            ref={register()}
+            type="file"
+            accept="image/*;capture=camera"
+            className="field"
+          />
+        </div>
+        {photo && photo.length > 0 && <PhotoPreview file={photo?.[0]} />}
+        <div className="flex flex-col mb-4">
+          <label htmlFor="post_name" className="field-label">
+            description
+          </label>
+          <input
+            id="post_name"
+            disabled={isSubmitting}
+            ref={register({ required: true })}
+            name="name"
+            placeholder="name"
+            required
+            className="field"
+          />
+        </div>
+        <div className="flex flex-col mb-4">
+          <label htmlFor="post_address" className="field-label">
+            location
+          </label>
+          <Controller
+            control={control}
+            name="address"
+            rules={{ required: true }}
+            render={({ name, ref, onChange, onBlur }) => (
+              <input
+                id="post_address"
+                disabled={isSubmitting}
+                name={name}
+                ref={ref}
+                placeholder="address"
+                required
+                className="field"
+                onChange={(e) => {
+                  onChange(e);
+                  // TODO: debounce this
+                  onAddressChangeDb(geocoder, {
+                    address: e.target.value,
+                    bounds,
+                  });
+                }}
+                onBlur={onBlur}
+              />
+            )}
+          ></Controller>
+        </div>
+        <div className="mb-2 flex flex-row">
+          <span className="flex-1">
+            <Button primary disabled={isSubmitting} type="submit">
+              Submit
+            </Button>
+          </span>
+          <Button onClick={() => void setShowAddPost(false)}>
+            <a>cancel</a>
+          </Button>
+        </div>
+      </form>
+      <div className="flex-1">
+        <PostPreview marker={loc} />
       </div>
-      {photo && photo.length > 0 && <PhotoPreview file={photo?.[0]} />}
-      <div className="flex flex-col mb-4">
-        <label htmlFor="post_name" className="field-label">
-          description
-        </label>
-        <input
-          id="post_name"
-          disabled={isSubmitting}
-          ref={register({ required: true })}
-          name="name"
-          placeholder="name"
-          required
-          className="field"
-        />
-      </div>
-      <div className="flex flex-col mb-4">
-        <label htmlFor="post_address" className="field-label">
-          location
-        </label>
-        <input
-          id="post_address"
-          disabled={isSubmitting}
-          name="address"
-          ref={register({ required: true })}
-          placeholder="address"
-          required
-          className="field"
-        />
-      </div>
-      <div>
-        <Button primary disabled={isSubmitting} type="submit">
-          add
-        </Button>
-      </div>
-    </form>
+    </div>
   );
 };
 

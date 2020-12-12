@@ -18,8 +18,10 @@ import {
 import { RequireLogin } from "components/admin/RequireLogin";
 import Button from "components/Button/Button";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 export const BottomNav = () => {
+  const router = useRouter();
   const [view, setView] = useAtom(activeView);
   const [showAddPost, setShowAddPost] = useAtom(showAddPostAtom);
   const [, setUserLocation] = useAtom(currentPositionAtom);
@@ -29,10 +31,15 @@ export const BottomNav = () => {
   const onAddPost = useCallback(() => void setShowAddPost(true), [
     setShowAddPost,
   ]);
-  const onViewMap = useCallback(() => void setView("map"), [setView]);
+  const onViewMap = useCallback(() => {
+    setView("map");
+    // clearSelection();
+    router.push("/");
+  }, [setView]);
   const onViewList = useCallback(() => {
     setView("list");
-    clearSelection();
+    // clearSelection();
+    router.push("/");
   }, [setView]);
 
   const onCenterUser = useCallback(() => {

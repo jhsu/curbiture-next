@@ -35,7 +35,7 @@ export const Posts = () => {
 
   return (
     <div className="flex flex-col flex-1 relative overflow-auto">
-      {viewingPost && (
+      {/* {viewingPost && (
         <div className="absolute w-full h-full mb-16 bg-gray-200">
           <div className="flex flex-row items-center pr-2">
             <h2 className="flex-1 px-2">{viewingPost.name}</h2>
@@ -53,15 +53,16 @@ export const Posts = () => {
             </Button>
           </div>
         </div>
-      )}
+      )} */}
 
       <div className="flex-1 overflow-auto pb-16">
         <header className="p-2">
-          <h2 className="heading">A curb near you.</h2>
-          <p>view nearby finds.</p>
-
           {isAdmin && (
-            <select value={viewingScope} onChange={onChangeScope}>
+            <select
+              value={viewingScope}
+              onChange={onChangeScope}
+              className="w-full h-8 text-lg border-2 border-gray-300"
+            >
               <option value="posts_pending">pending</option>
               <option value="posts_approved">approved</option>
             </select>
@@ -72,7 +73,15 @@ export const Posts = () => {
             <PostsBacklog onSelectPost={setViewItem} />
           ) : (
             <>
-              {approvedPosts.length === 0 && <div>No posts</div>}
+              {approvedPosts.length === 0 && (
+                <div className="p-2">
+                  <img src="/images/no-posts.svg" alt="no items found" />
+                  <h2>There are items found.</h2>
+                  <p>
+                    Post an item to help others find what they are looking for!
+                  </p>
+                </div>
+              )}
               {approvedPosts.map((post) => {
                 return (
                   <PostItem

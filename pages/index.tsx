@@ -44,15 +44,17 @@ export default function IndexPage() {
           </NotLoggedIn>
           <CurrentUserDisplay onSignout={onSignout} />
         </div>
-        <div className="flex-1 h-full overflow-auto flex flex-row">
+        <div className="flex-1 h-full overflow-auto flex flex-row relative">
           {showAddPost && (
-            <div className="absolute h-full w-full bg-white z-10">
+            <div className="absolute h-full w-full bg-white z-10 flex flex-col">
               <div className="flex flex-row self-start">
                 <Button onClick={() => void setShowAddPost(false)}>
                   <ArrowLeft size="m" />
                 </Button>
               </div>
-              <AddPosting />
+              <div className="flex-1 map-container">
+                <AddPosting />
+              </div>
             </div>
           )}
           <div

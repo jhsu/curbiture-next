@@ -16,7 +16,6 @@ export const SignUp = ({ onSignup }: SignUpProps) => {
   const { errors, register, getValues, handleSubmit } = useForm();
   const onSubmit = useCallback(
     async ({ email, password }) => {
-      console.log(email, password);
       try {
         const user = await auth.createUserWithEmailAndPassword(email, password);
         setUser(user.user);

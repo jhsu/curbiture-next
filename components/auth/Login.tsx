@@ -17,7 +17,6 @@ export const Login = () => {
 
   const onSubmit = useCallback(
     async ({ email, password }) => {
-      console.log(email, password);
       try {
         const user = await auth.signInWithEmailAndPassword(email, password);
         setUser(user.user);

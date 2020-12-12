@@ -16,6 +16,7 @@ const ShowPost = () => {
   const { id } = router.query;
   const [post, setPost] = useState<ItemLocation | null>(null);
   const [, setBottomNav] = useAtom(bottomNavAtom);
+  const [error, setError] = useState<Error>();
 
   useEffect(() => {
     setBottomNav({
@@ -28,28 +29,43 @@ const ShowPost = () => {
   useEffect(() => {
     if (id) {
       const docRef = store.collection("posts_approved").doc(id as string);
-      docRef.get().then((doc) => {
-        if (doc.exists) {
-          const data = doc.data();
-          const location = data.location as firebase.firestore.GeoPoint;
-          setPost({
-            id: doc.id,
-            name: data.name,
-            created_at: data.created_at,
-            address: data.address,
-            location: {
-              lat: location.latitude,
-              lng: location.longitude,
-            },
-            photo_path: data.photo_path,
-            photo: data.photo,
-          });
-        } else {
-          // error loading
-        }
-      });
+      docRef
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            const data = doc.data();
+            const location = data.location as firebase.firestore.GeoPoint;
+            setPost({
+              id: doc.id,
+              name: data.name,
+              created_at: data.created_at,
+              address: data.address,
+              location: {
+                lat: location.latitude,
+                lng: location.longitude,
+              },
+              photo_path: data.photo_path,
+              photo: data.photo,
+            });
+          } else {
+            throw new Error("Document not found");
+          }
+        })
+        .catch((err) => {
+          setError(err);
+          // router.push("/");
+        });
     }
   }, [id]);
+
+  if (error) {
+    return (
+      <div className="w-full h-full">
+        <h2>Unable to find post.</h2>
+        <Link href="/">Go home and see other posts.</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full mb-16 bg-gray-200">
