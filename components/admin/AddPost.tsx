@@ -19,7 +19,6 @@ import { useFireStorage, useFirestore } from "../firebase";
 import short from "short-uuid";
 import PostPreview from "components/Mapper/PostPreview";
 import { debounce } from "components/utils/utils";
-import Link from "next/link";
 
 const translator = short();
 
@@ -198,14 +197,22 @@ const LocationInput = ({ google }: LocationInputProps) => {
   const [loc, setLoc] = useState<google.maps.LatLng | null>(null);
   const onAddressChangeDb = useMemo(
     () =>
-      debounce((...args) => {
-        const [, { address }] = args;
-        if (address && address !== "") {
-          geocodeLocation(...args).then((loc) => setLoc(loc));
-        } else {
-          setLoc(null);
-        }
-      }, 500),
+      debounce(
+        (
+          ...args: [
+            google.maps.Geocoder,
+            { address: string; bounds: google.maps.LatLngBounds }
+          ]
+        ) => {
+          const [, { address }] = args;
+          if (address && address !== "") {
+            geocodeLocation(...args).then((loc) => setLoc(loc));
+          } else {
+            setLoc(null);
+          }
+        },
+        500
+      ),
     [geocodeLocation]
   );
 
