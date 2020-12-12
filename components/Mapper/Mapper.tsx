@@ -223,7 +223,11 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
             />
           )}
           {clusterItems?.map((item, idx) => (
-            <ItemInfo key={idx} post={item} onViewDetails={onViewDetails} />
+            <ItemInfo
+              key={idx}
+              post={item}
+              onViewDetails={(item) => void router.push(`/posts/${item.id}`)}
+            />
           ))}
         </InfoWindow>
       )}
