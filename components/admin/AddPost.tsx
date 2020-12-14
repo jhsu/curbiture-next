@@ -284,6 +284,9 @@ const LocationInput = ({ google }: LocationInputProps) => {
                 placeholder="address"
                 required
                 className="field"
+                onFocus={(e) => {
+                  e.target.scrollIntoView();
+                }}
                 onChange={(e) => {
                   onChange(e);
                   // TODO: debounce this
