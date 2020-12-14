@@ -35,7 +35,7 @@ const PhotoPreview = ({ file }: { file: File }) => {
   }, [file]);
   return (
     <img
-      className="mb-4"
+      className="mb-4 m-auto"
       style={{ maxHeight: 100 }}
       ref={imgRef}
       alt="preview"
@@ -223,7 +223,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
 
   // TODO: better file input
   return (
-    <div className="mb-6 py-4 px-3 flex flex-col h-full overflow-auto">
+    <div className="mb-6 px-3 flex flex-col h-full overflow-auto">
       <form onSubmit={handleSubmit(onSubmit)}>
         {formError && <div>{formError.message}</div>}
         <div className="flex flex-col mb-4">
@@ -312,7 +312,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
         </div>
       </form>
       <div className="flex-1">
-        <PostPreview marker={loc} />
+        <PostPreview height={200} marker={loc} />
       </div>
     </div>
   );

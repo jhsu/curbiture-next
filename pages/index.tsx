@@ -31,8 +31,8 @@ export default function IndexPage() {
 
   return (
     <>
-      <div className="flex flex-col h-screen">
-        <div className="p-1 flex flex-row">
+      <div className="flex flex-col h-screen bg-gray-900">
+        <div className="p-1 flex flex-row text-gray-100 justify-end">
           <NotLoggedIn>
             <FacebookLogin />
             <Link href="/signup">
@@ -44,10 +44,10 @@ export default function IndexPage() {
           </NotLoggedIn>
           <CurrentUserDisplay onSignout={onSignout} />
         </div>
-        <div className="flex-1 h-full overflow-auto flex flex-row relative">
+        <div className="overflow-hidden flex-1 flex flex-row relative rounded-lg">
           {showAddPost && (
             <div className="absolute h-full w-full bg-white z-10 flex flex-col">
-              <div className="flex flex-row self-start">
+              <div className="flex flex-row justify-end p-2">
                 <Button onClick={() => void setShowAddPost(false)}>
                   <ArrowLeft size="m" />
                 </Button>
@@ -60,7 +60,8 @@ export default function IndexPage() {
           <div
             className={classnames(
               "bg-gray-100",
-              "w-full md:w-1/3 md:max-w-xs h-full overflow-auto flex flex-col",
+              "w-full md:w-1/3 md:max-w-xs h-full flex flex-col",
+              "pt-2",
               { hidden: view !== "list" }
             )}
           >

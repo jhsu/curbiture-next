@@ -10,10 +10,8 @@ import {
   updateSelectedPostAtom,
 } from "../store";
 
-import Button from "./Button/Button";
 import { PostItem } from "./PostItem";
 import { PostsBacklog } from "./PostsBacklog";
-import { CloseIcon, MapIcon } from "./SvgIcon";
 import { useRouter } from "next/router";
 
 export const Posts = () => {
@@ -21,7 +19,7 @@ export const Posts = () => {
   const [approvedPosts] = useAtom(locAtom);
   const [viewingScope, setViewScope] = useAtom(viewScopeAtom);
   const [, viewOnMap] = useAtom(viewOnMapAtom);
-  const [viewingPost, setViewItem] = useAtom(updateSelectedPostAtom);
+  const [, setViewItem] = useAtom(updateSelectedPostAtom);
 
   const isAdmin = useIsAdmin();
 
@@ -29,12 +27,10 @@ export const Posts = () => {
     setViewScope,
   ]);
 
-  const closeDetails = useCallback(() => void setViewItem(null), [setViewItem]);
-
   const approving = viewingScope === "posts_pending";
 
   return (
-    <div className="flex flex-col flex-1 relative overflow-auto">
+    <div className="flex flex-col flex-1 relative posts-container">
       {/* {viewingPost && (
         <div className="absolute w-full h-full mb-16 bg-gray-200">
           <div className="flex flex-row items-center pr-2">

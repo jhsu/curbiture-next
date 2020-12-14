@@ -5,9 +5,10 @@ import * as React from "react";
 interface PostPreview {
   google: GoogleAPI;
   marker?: google.maps.LatLng | null;
+  height: number;
 }
 // TODO: pass in address
-const PostPreview = ({ google, marker }: PostPreview) => {
+const PostPreview = ({ google, height, marker }: PostPreview) => {
   return (
     <div className="relative">
       <Map
@@ -27,7 +28,7 @@ const PostPreview = ({ google, marker }: PostPreview) => {
         }}
         containerStyle={{
           //   width: "100%",
-          height: 200,
+          height: height,
         }}
       >
         {marker && <Marker position={marker}></Marker>}

@@ -9,7 +9,9 @@ export const CurrentUserDisplay = ({ onSignout }: { onSignout(): void }) => {
     return (
       <div>
         <span className="mr-2">{currentUser.displayName}</span>
-        <Button onClick={onSignout}>Logout</Button>
+        <Button onClick={onSignout} className="text-gray-700">
+          Logout
+        </Button>
       </div>
     );
   }
