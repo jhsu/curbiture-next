@@ -35,5 +35,9 @@ export const FacebookLogin = () => {
       });
   }, [provider]);
 
-  return <Button onClick={onLogin}>Login with Facebook</Button>;
+  return (
+    <Button onClick={onLogin} className="text-gray-700">
+      Login with Facebook
+    </Button>
+  );
 };

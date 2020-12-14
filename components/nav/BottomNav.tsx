@@ -25,8 +25,10 @@ export const BottomNav = () => {
   const [view, setView] = useAtom(activeView);
   const [showAddPost, setShowAddPost] = useAtom(showAddPostAtom);
   const [, setUserLocation] = useAtom(currentPositionAtom);
-  const [, clearSelection] = useAtom(clearPostSelection);
+  // const [, clearSelection] = useAtom(clearPostSelection);
   const [{ showActions }] = useAtom(bottomNavAtom);
+
+  const homeRoute = router.pathname === "/";
 
   const onAddPost = useCallback(() => void setShowAddPost(true), [
     setShowAddPost,
@@ -70,12 +72,15 @@ export const BottomNav = () => {
     });
   }, []);
 
-  // TODO: hide nav-actions when viewing a single post
-
   return (
     <nav className="bottom-nav">
       <div className={classnames({ hidden: showAddPost || !showActions })}>
-        <div className="nav-actions absolute right-4 bottom-20 flex-col">
+        <div
+          className={classnames(
+            "nav-actions absolute right-4 bottom-20 flex-col",
+            { "nav-actions__hidden": !homeRoute }
+          )}
+        >
           {view === "map" && (
             <>
               <Button icon onClick={onCenterUser} className="shadow-md">
