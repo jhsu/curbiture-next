@@ -32,7 +32,7 @@ export default function IndexPage() {
   return (
     <>
       <div className="flex flex-col h-screen">
-        <div className="p-1">
+        <div className="p-1 flex flex-row">
           <NotLoggedIn>
             <FacebookLogin />
             <Link href="/signup">

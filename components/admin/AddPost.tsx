@@ -34,7 +34,12 @@ const PhotoPreview = ({ file }: { file: File }) => {
     reader.readAsDataURL(file);
   }, [file]);
   return (
-    <img className="mb-4" style={{ height: 100 }} ref={imgRef} alt="preview" />
+    <img
+      className="mb-4"
+      style={{ maxHeight: 100 }}
+      ref={imgRef}
+      alt="preview"
+    />
   );
 };
 
@@ -222,9 +227,6 @@ const LocationInput = ({ google }: LocationInputProps) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         {formError && <div>{formError.message}</div>}
         <div className="flex flex-col mb-4">
-          <label htmlFor="post_photo" className="field-label">
-            photo
-          </label>
           <input
             id="post_photo"
             name="photo"
@@ -232,10 +234,25 @@ const LocationInput = ({ google }: LocationInputProps) => {
             ref={register()}
             type="file"
             accept="image/*;capture=camera"
-            className="field"
+            className="hidden"
           />
+          {photo && photo.length > 0 ? (
+            <div className="text-center">
+              <PhotoPreview file={photo?.[0]} />
+            </div>
+          ) : (
+            <label htmlFor="post_photo" className="field-label relative">
+              <span className="absolute block w-full text-center bg-gray-100 bg-opacity-50 bottom-4">
+                select photo
+              </span>
+              <img
+                src="/images/curb.svg"
+                tabIndex={0}
+                style={{ height: 200, margin: "0 auto" }}
+              />
+            </label>
+          )}
         </div>
-        {photo && photo.length > 0 && <PhotoPreview file={photo?.[0]} />}
         <div className="flex flex-col mb-4">
           <label htmlFor="post_name" className="field-label">
             description
