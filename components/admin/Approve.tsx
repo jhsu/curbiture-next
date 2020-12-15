@@ -46,7 +46,7 @@ export const Approve = ({
           location: geopoint,
           created_at: post.created_at,
           approved_at: new Date(),
-          address: post.address ?? null,
+          address: post.address,
           // required by geofire:
           coordinates: geopoint,
         });

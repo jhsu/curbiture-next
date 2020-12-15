@@ -55,12 +55,12 @@ export const useVisibleLocations = () => {
           return {
             id: change.doc.id,
             name: doc.name,
+            ...doc,
             created_at: doc.created_at?.toDate() as Date,
             location: {
               lat: doc.location?.latitude as number,
               lng: doc.location?.longitude as number,
             },
-            photo: doc.photo,
           };
         });
         setLocations(data);
@@ -140,6 +140,7 @@ export const useFirebaseLocations = (
                     const postDoc = doc.data();
                     return {
                       ...il,
+                      ...postDoc,
                       id: doc.id,
                       name: postDoc.name,
                       created_at: postDoc.created_at.toDate() as Date,
@@ -147,8 +148,6 @@ export const useFirebaseLocations = (
                         lat: postDoc.location?.latitude as number,
                         lng: postDoc.location?.longitude as number,
                       },
-                      photo: postDoc.photo,
-                      photo_path: postDoc.photo_path,
                     };
                   }
                   return il;
@@ -159,13 +158,12 @@ export const useFirebaseLocations = (
                 const postData = {
                   id: doc.id,
                   name: postDoc.name,
+                  ...postDoc,
                   created_at: postDoc.created_at.toDate() as Date,
                   location: {
                     lat: postDoc.location?.latitude as number,
                     lng: postDoc.location?.longitude as number,
                   },
-                  photo: postDoc.photo,
-                  photo_path: postDoc.photo_path,
                 };
                 return [postData, ...prev];
               }

@@ -44,7 +44,7 @@ export default function IndexPage() {
           </NotLoggedIn>
           <CurrentUserDisplay onSignout={onSignout} />
         </div>
-        <div className="overflow-hidden flex-1 flex flex-row relative rounded-lg">
+        <div className="overflow-hidden flex-1 flex flex-row relative rounded-lg pb-16">
           {showAddPost && (
             <div className="absolute h-full w-full bg-white z-10 flex flex-col">
               <div className="flex flex-row justify-end p-2">
@@ -67,8 +67,10 @@ export default function IndexPage() {
           >
             {view === "list" && <Posts />}
           </div>
-          <div className={classnames("flex-1 map-container")}>
-            <Mapper active={view === "map" && !showAddPost} />
+          <div className="flex flex-col flex-1 relative">
+            <div className="flex-1 map-container">
+              <Mapper active={view === "map" && !showAddPost} />
+            </div>
           </div>
         </div>
       </div>
