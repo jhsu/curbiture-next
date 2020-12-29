@@ -21,7 +21,8 @@
       "./types",
       "./node_modules/@types"
     ],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",

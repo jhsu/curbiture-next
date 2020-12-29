@@ -25,33 +25,38 @@ const Reset = () => {
   );
 
   return (
-    <div>
-      <h2>Forgot your password?</h2>
-      <p>Enter your email address to reset your password.</p>
+    <div className="flex-1">
+      <div className="p-2">
+        <h2>Forgot your password?</h2>
+        <p>Enter your email address to reset your password.</p>
+      </div>
       {resetSent && <div>Reset email has been sent.</div>}
       <form onSubmit={handleSubmit(onStartReset)} className="auth-form">
-        <label>
-          <span>Email</span>
+        <div className="mb-4">
+          <label htmlFor="user_email">
+            <span>Email</span>
+          </label>
           <input
             ref={register}
+            id="user_email"
             name="email"
             type="email"
             placeholder="E-mail address"
             required
             className="text-input"
           />
-        </label>
+        </div>
         <Button type="submit">Submit</Button>
       </form>
-      <Link href="/">
-        <a>cancel</a>
-      </Link>
-      <div>
+      <div className="flex flex-row">
         <Link href="/signup">
           <a>Sign up</a>
         </Link>
         <Link href="/login">
           <a>Login</a>
+        </Link>
+        <Link href="/">
+          <a>cancel</a>
         </Link>
       </div>
     </div>

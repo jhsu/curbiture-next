@@ -1,9 +1,9 @@
 import { useAtom } from "jotai";
 import * as React from "react";
-import { userAtom } from "../../store";
+import { currentUserAtom } from "../../store";
 
 export const RequireLogin = ({ children }: { children: React.ReactNode }) => {
-  const [user] = useAtom(userAtom);
+  const [user] = useAtom(currentUserAtom);
   if (!user) {
     return null;
   }

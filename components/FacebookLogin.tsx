@@ -3,11 +3,11 @@ import "firebase/auth";
 import { useAtom } from "jotai";
 import * as React from "react";
 import { useCallback, useEffect, useMemo } from "react";
-import { userAtom } from "../store";
+import { currentUserAtom } from "../store";
 import Button from "./Button/Button";
 
 export const FacebookLogin = () => {
-  const [, setUser] = useAtom(userAtom);
+  const [, setUser] = useAtom(currentUserAtom);
 
   useEffect(() => {
     const unsub = firebase.auth().onAuthStateChanged((user) => {

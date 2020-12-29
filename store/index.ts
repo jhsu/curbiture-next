@@ -1,5 +1,4 @@
 import { atom } from "jotai";
-import { WritableAtom } from "jotai/core/types";
 
 export interface LatLngLiteral {
   lat: number;
@@ -25,10 +24,21 @@ export interface User {
 export const createScopeAtom = atom<string>("posts_pending");
 export const viewScopeAtom = atom<string>("posts_approved");
 
-export const userAtom: WritableAtom<User, User> = atom<User, User | null>(null);
+// export const userAtom: WritableAtom<User, User> = atom<User, User | null>(null);
+export const userAtom = atom<{ currentUser: User | null }>({
+  currentUser: null,
+});
+
+export const currentUserAtom = atom(
+  (get) => get(userAtom).currentUser,
+  (get, set, user: User | null) => {
+    set(userAtom, { ...get(userAtom), currentUser: user });
+  }
+);
+
 export const isAdminAtom = atom<boolean>(false);
 export const currentPositionAtom = atom<{
-  location: google.maps.LatLngLiteral;
+  location: google.maps.LatLngLiteral | null;
 }>({
   location: null,
 });
@@ -37,11 +47,20 @@ export const locAtom = atom<ItemLocation[]>([]);
 locAtom.debugLabel = "Posts";
 
 export const unapprovedPosts = atom<ItemLocation[]>([]);
-export const boundsAtom: WritableAtom<
-  google.maps.LatLngBounds,
-  google.maps.LatLngBounds
-> = atom<google.maps.LatLngBounds, google.maps.LatLngBounds | null>(null);
-boundsAtom.debugLabel = "Bounds";
+
+export const mapAtom = atom<{
+  bounds: google.maps.LatLngBounds | null;
+}>({
+  bounds: null,
+});
+
+export const boundsAtom = atom(
+  (get) => get(mapAtom).bounds,
+  (get, set, bounds: google.maps.LatLngBounds) => {
+    set(mapAtom, { ...get(mapAtom), bounds });
+  }
+);
+boundsAtom.debugLabel = "Map Bounds";
 
 export const loadingItemsAtom = atom(false);
 

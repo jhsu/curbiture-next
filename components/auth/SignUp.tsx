@@ -3,7 +3,7 @@ import * as React from "react";
 import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useFirebaseAuth } from "hooks/firebase";
-import { userAtom } from "store";
+import { currentUserAtom } from "store";
 import Button from "components/Button/Button";
 import Link from "next/link";
 
@@ -12,7 +12,7 @@ interface SignUpProps {
 }
 export const SignUp = ({ onSignup }: SignUpProps) => {
   const auth = useFirebaseAuth();
-  const [, setUser] = useAtom(userAtom);
+  const [, setUser] = useAtom(currentUserAtom);
   const { errors, register, getValues, handleSubmit } = useForm();
   const onSubmit = useCallback(
     async ({ email, password }) => {
@@ -31,8 +31,10 @@ export const SignUp = ({ onSignup }: SignUpProps) => {
   );
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
-      <label className="block mb-2">
-        <span className="block">E-mail</span>
+      <div className="mb-4">
+        <label className="block" htmlFor="user_email">
+          E-mail
+        </label>
         <input
           placeholder="Your e-mail"
           ref={register}
@@ -42,9 +44,11 @@ export const SignUp = ({ onSignup }: SignUpProps) => {
           required
           className="text-input"
         />
-      </label>
-      <label className="block mb-2">
-        <span className="block">Password</span>
+      </div>
+      <div className="mb-4">
+        <label className="block" htmlFor="user_password">
+          Password
+        </label>
         <input
           placeholder="Enter a password with atleast 6 characters"
           ref={register}
@@ -55,9 +59,11 @@ export const SignUp = ({ onSignup }: SignUpProps) => {
           min="6"
           className="text-input"
         />
-      </label>
-      <label className="block mb-2">
-        <span className="block">Password Confirmation</span>
+      </div>
+      <div className="mb-4">
+        <label className="block" htmlFor="user_password_confirmation">
+          Password Confirmation
+        </label>
         <input
           placeholder="Repeat password for confirmation"
           ref={register({
@@ -75,10 +81,12 @@ export const SignUp = ({ onSignup }: SignUpProps) => {
         {errors?.password_confirmation && (
           <div className="text-red-300">Your passwords must match</div>
         )}
-      </label>
+      </div>
 
-      <div>
-        <Button type="submit">submit</Button>
+      <div className="flex flex-row">
+        <div className="flex-1">
+          <Button type="submit">submit</Button>
+        </div>
         <Link href="/">
           <a>cancel</a>
         </Link>

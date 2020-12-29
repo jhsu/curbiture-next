@@ -1,11 +1,11 @@
-import { useEffect } from "react";
 import { useAtom } from "jotai";
-import { isAdminAtom, userAtom } from "../store";
+import { useEffect } from "react";
 import { useFirestore } from "../components/firebase";
+import { currentUserAtom, isAdminAtom } from "../store";
 
 export const useIsAdmin = () => {
   const db = useFirestore();
-  const [user] = useAtom(userAtom);
+  const [user] = useAtom(currentUserAtom);
   const [isAdmin, setIsAdmin] = useAtom(isAdminAtom);
 
   useEffect(() => {

@@ -19,6 +19,7 @@ import { useFireStorage, useFirestore } from "../firebase";
 import short from "short-uuid";
 import PostPreview from "components/Mapper/PostPreview";
 import { debounce } from "components/utils/utils";
+import Progress from "components/Progress";
 
 const translator = short();
 
@@ -103,6 +104,8 @@ const LocationInput = ({ google }: LocationInputProps) => {
 
   const photo = watch("photo");
 
+  const [uploadPercent, setPercent] = useState(0);
+
   const onSubmit = useCallback(
     async ({
       address,
@@ -113,7 +116,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
       name: string;
       photo: File[];
     }) => {
-      if (db && google && storage) {
+      if (db && google && storage && bounds) {
         const key = translator.new();
         try {
           const loc = await geocodeLocation(geocoder, {
@@ -123,24 +126,27 @@ const LocationInput = ({ google }: LocationInputProps) => {
 
           // create the record
           let postRef: firebase.firestore.DocumentReference;
-          let photoUrl: string;
-          let photoPath: string;
+          let photoUrl: string | undefined = undefined;
+          let photoPath: string | undefined = undefined;
 
           if (photo && photo[0]) {
-            const file = photo[0];
             // upload photo
+            const file = photo[0];
             const metadata = {
               contentType: file.type,
             };
             const lastDot = file.name.lastIndexOf(".");
             const ext = file.name.substring(lastDot + 1);
             photoPath = `posts/${key}.${ext}`;
-            const snapshot = await storage.child(photoPath).put(file, metadata);
-            photoUrl = await snapshot.ref.getDownloadURL();
-            // await postRef.update({
-            //   photo: url,
-            //   photo_path: dest,
-            // });
+            const uploadTask = storage.child(photoPath).put(file, metadata);
+            uploadTask.on("stage_change", (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              setPercent(progress);
+            });
+            await uploadTask.then(async (snapshot) => {
+              photoUrl = await snapshot.ref.getDownloadURL();
+            });
           }
 
           const timestamp = new Date();
@@ -221,98 +227,100 @@ const LocationInput = ({ google }: LocationInputProps) => {
     [geocodeLocation]
   );
 
-  // TODO: better file input
   return (
-    <div className="mb-6 px-3 flex flex-col h-full overflow-auto">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {formError && <div>{formError.message}</div>}
-        <div className="flex flex-col mb-4">
-          <input
-            id="post_photo"
-            name="photo"
-            disabled={isSubmitting}
-            ref={register()}
-            type="file"
-            accept="image/*;capture=camera"
-            className="hidden"
-          />
-          {photo && photo.length > 0 ? (
-            <div className="text-center">
-              <PhotoPreview file={photo?.[0]} />
-            </div>
-          ) : (
-            <label htmlFor="post_photo" className="field-label relative">
-              <span className="absolute block w-full text-center bg-gray-100 bg-opacity-50 bottom-4">
-                select photo
-              </span>
-              <img
-                src="/images/curb.svg"
-                tabIndex={0}
-                style={{ height: 200, margin: "0 auto" }}
-              />
-            </label>
-          )}
-        </div>
-        <div className="flex flex-col mb-4">
-          <label htmlFor="post_name" className="field-label">
-            description
-          </label>
-          <input
-            id="post_name"
-            disabled={isSubmitting}
-            ref={register({ required: true })}
-            name="name"
-            placeholder="name"
-            required
-            className="field"
-          />
-        </div>
-        <div className="flex flex-col mb-4">
-          <label htmlFor="post_address" className="field-label">
-            location
-          </label>
-          <Controller
-            control={control}
-            name="address"
-            rules={{ required: true }}
-            render={({ name, ref, onChange, onBlur }) => (
-              <input
-                id="post_address"
-                disabled={isSubmitting}
-                name={name}
-                ref={ref}
-                placeholder="address"
-                required
-                className="field"
-                onFocus={(e) => {
-                  e.target.scrollIntoView();
-                }}
-                onChange={(e) => {
-                  onChange(e);
-                  // TODO: debounce this
-                  onAddressChangeDb(geocoder, {
-                    address: e.target.value,
-                    bounds,
-                  });
-                }}
-                onBlur={onBlur}
-              />
+    <div className="flex flex-col">
+      {isSubmitting && <Progress percent={uploadPercent} />}
+      <div className="mb-6 px-3 flex-1 flex flex-col  h-fll overflow-auto">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {formError && <div>{formError.message}</div>}
+          <div className="flex flex-col mb-4">
+            <input
+              id="post_photo"
+              name="photo"
+              disabled={isSubmitting}
+              ref={register()}
+              type="file"
+              accept="image/*;capture=camera"
+              className="hidden"
+            />
+            {photo && photo.length > 0 ? (
+              <div className="text-center">
+                <PhotoPreview file={photo?.[0]} />
+              </div>
+            ) : (
+              <label htmlFor="post_photo" className="field-label relative">
+                <span className="absolute block w-full text-center bg-gray-100 bg-opacity-50 bottom-4">
+                  select photo
+                </span>
+                <img
+                  src="/images/curb.svg"
+                  tabIndex={0}
+                  style={{ height: 200, margin: "0 auto" }}
+                />
+              </label>
             )}
-          ></Controller>
-        </div>
-        <div className="mb-2 flex flex-row">
-          <span className="flex-1">
-            <Button primary disabled={isSubmitting} type="submit">
-              Submit
+          </div>
+          <div className="flex flex-col mb-4">
+            <label htmlFor="post_name" className="field-label">
+              description
+            </label>
+            <input
+              id="post_name"
+              disabled={isSubmitting}
+              ref={register({ required: true })}
+              name="name"
+              placeholder="name"
+              required
+              className="field"
+            />
+          </div>
+          <div className="flex flex-col mb-4">
+            <label htmlFor="post_address" className="field-label">
+              location
+            </label>
+            <Controller
+              control={control}
+              name="address"
+              rules={{ required: true }}
+              render={({ name, ref, onChange, onBlur }) => (
+                <input
+                  id="post_address"
+                  disabled={isSubmitting}
+                  name={name}
+                  ref={ref}
+                  placeholder="address"
+                  required
+                  className="field"
+                  onFocus={(e) => {
+                    e.target.scrollIntoView();
+                  }}
+                  onChange={(e) => {
+                    onChange(e);
+                    // TODO: debounce this
+                    onAddressChangeDb(geocoder, {
+                      address: e.target.value,
+                      bounds,
+                    });
+                  }}
+                  onBlur={onBlur}
+                />
+              )}
+            ></Controller>
+          </div>
+          <div className="mb-2 flex flex-row">
+            <span className="flex-1">
+              <Button primary disabled={isSubmitting} type="submit">
+                Submit
+              </Button>
+            </span>
+            <Button onClick={() => void setShowAddPost(false)}>
+              <a>cancel</a>
             </Button>
-          </span>
-          <Button onClick={() => void setShowAddPost(false)}>
-            <a>cancel</a>
-          </Button>
+          </div>
+        </form>
+        <div className="flex-1">
+          <PostPreview height={200} marker={loc} />
         </div>
-      </form>
-      <div className="flex-1">
-        <PostPreview height={200} marker={loc} />
       </div>
     </div>
   );

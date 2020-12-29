@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   GoogleAPI,
   GoogleApiWrapper,
@@ -12,13 +12,14 @@ import { useAtom } from "jotai";
 import { GOOGLE_KEY } from "../../google";
 import { useVisibleLocations } from "../../hooks/firebase";
 import {
-  activeView,
+  // activeView,
   boundsAtom,
   clearPostSelection,
   currentPositionAtom,
   ItemLocation,
   locAtom,
   updateSelectedPostAtom,
+  viewScopeAtom,
 } from "../../store";
 import { Cluster } from "@googlemaps/markerclustererplus/dist/cluster";
 import { InfoWindow } from "./InfoWindow";
@@ -38,9 +39,9 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
   const [selectedPost, onSelectPost] = useAtom(updateSelectedPostAtom);
   const [{ location }] = useAtom(currentPositionAtom);
 
-  const [, setView] = useAtom(activeView);
+  // const [, setView] = useAtom(activeView);
 
-  const map = useRef<Map>(null);
+  const map = useRef<Map>();
 
   const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow>();
   const [clusterItems, selectClusterItems] = useState<ItemLocation[] | null>(
@@ -73,7 +74,7 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
   }, [items]);
 
   useEffect(() => {
-    if (infoWindow && !cluster.current) {
+    if (map.current && infoWindow && !cluster.current) {
       cluster.current = new MarkerClusterer(map.current.map, [], {
         imagePath: "/map/m",
         zoomOnClick: false,
@@ -174,13 +175,13 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
     }
   }, [location]);
 
-  const onViewDetails = useCallback(
-    (post: ItemLocation) => {
-      onSelectPost(post);
-      setView("list");
-    },
-    [onSelectPost]
-  );
+  // const onViewDetails = useCallback(
+  //   (post: ItemLocation) => {
+  //     onSelectPost(post);
+  //     setView("list");
+  //   },
+  //   [onSelectPost]
+  // );
 
   return (
     <Map

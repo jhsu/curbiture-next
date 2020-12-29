@@ -1,7 +1,12 @@
 import { useFirestore } from "components/firebase";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { bottomNavAtom, ItemLocation } from "store";
+import { useCallback, useEffect, useState } from "react";
+import {
+  activeView,
+  bottomNavAtom,
+  ItemLocation,
+  updateSelectedPostAtom,
+} from "store";
 
 import firebase from "firebase/app";
 import "firebase/firestore";
@@ -17,6 +22,8 @@ const ShowPost = () => {
   const [post, setPost] = useState<ItemLocation | null>(null);
   const [, setBottomNav] = useAtom(bottomNavAtom);
   const [error, setError] = useState<Error>();
+  const [, setSelectedPost] = useAtom(updateSelectedPostAtom);
+  const [, setViewScope] = useAtom(activeView);
 
   useEffect(() => {
     setBottomNav({
@@ -67,8 +74,14 @@ const ShowPost = () => {
     );
   }
 
+  const onViewOnMap = useCallback(() => {
+    setSelectedPost(post);
+    setViewScope("map");
+    router.push("/");
+  }, [post]);
+
   return (
-    <div className="w-full h-full mb-16 bg-gray-200">
+    <div className="flex-1 bg-gray-200 overflow-auto">
       <div className="flex flex-row items-center pr-2">
         <h2 className="flex-1 px-2">{post?.name}</h2>
         <Link href="/">
@@ -82,7 +95,7 @@ const ShowPost = () => {
           {post.photo && <img src={post.photo} alt={post.name} width="100%" />}
           <div>
             <p>{post.address}</p>
-            <Button>
+            <Button onClick={onViewOnMap}>
               <MapIcon size="m" />
             </Button>
           </div>

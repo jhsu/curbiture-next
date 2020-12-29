@@ -4,14 +4,14 @@ import { useCallback } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { useFirebaseAuth } from "hooks/firebase";
-import { userAtom } from "store";
+import { currentUserAtom } from "store";
 import Button from "components/Button/Button";
 import { useRouter } from "next/router";
 
 // TODO: handle reauth
 export const Login = () => {
   const auth = useFirebaseAuth();
-  const [, setUser] = useAtom(userAtom);
+  const [, setUser] = useAtom(currentUserAtom);
   const { register, handleSubmit } = useForm();
   const router = useRouter();
 
@@ -30,7 +30,7 @@ export const Login = () => {
   );
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="auth-form">
-      <div>
+      <div className="mb-4">
         <label htmlFor="user_email">E-mail</label>
         <input
           placeholder="Your e-mail"
@@ -42,7 +42,7 @@ export const Login = () => {
           className="text-input"
         />
       </div>
-      <div>
+      <div className="mb-4">
         <label htmlFor="user_password">Password</label>
         <input
           placeholder="Enter a password with atleast 6 characters"
@@ -55,9 +55,10 @@ export const Login = () => {
           className="text-input"
         />
       </div>
-
-      <div>
-        <Button type="submit">submit</Button>
+      <div className="flex flex-row">
+        <div className="flex-1">
+          <Button type="submit">submit</Button>
+        </div>
         <Link href="/">
           <a>cancel</a>
         </Link>

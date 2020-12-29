@@ -7,14 +7,11 @@ interface ItemInfoProps {
 }
 export const ItemInfo = ({ post, onViewDetails }: ItemInfoProps) => {
   return (
-    <div onClick={() => void onViewDetails(post)}>
-      <h2>{post?.name}</h2>
+    <div className="pb-2" onClick={() => void onViewDetails(post)}>
+      <h2>{post.name}</h2>
       <div>
-        {post?.photo ? (
-          <img width={120} src={post?.photo} alt="item" />
-        ) : (
-          <div>photo</div>
-        )}
+        {post.photo && <img width={120} src={post?.photo} alt="item" />}
+        <p>{post.address}</p>
       </div>
     </div>
   );
