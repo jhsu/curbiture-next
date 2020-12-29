@@ -32,6 +32,9 @@ export const useVisibleLocations = () => {
 
   const updateSubscription = useCallback(
     (bounds) => {
+      if (!geofire) {
+        return;
+      }
       setLoading(true);
       const center = bounds.getCenter();
       const ne = bounds.getNorthEast();

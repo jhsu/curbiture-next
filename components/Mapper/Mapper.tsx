@@ -19,7 +19,6 @@ import {
   ItemLocation,
   locAtom,
   updateSelectedPostAtom,
-  viewScopeAtom,
 } from "../../store";
 import { Cluster } from "@googlemaps/markerclustererplus/dist/cluster";
 import { InfoWindow } from "./InfoWindow";
@@ -41,7 +40,7 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
 
   // const [, setView] = useAtom(activeView);
 
-  const map = useRef<Map>();
+  const map = useRef<Map>(null);
 
   const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow>();
   const [clusterItems, selectClusterItems] = useState<ItemLocation[] | null>(
@@ -92,7 +91,9 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
           );
           selectClusterItems(posts);
           infoWindow.setPosition(c.getCenter());
-          infoWindow.open(map.current.map);
+          if (map.current) {
+            infoWindow.open(map.current.map);
+          }
         }
       );
       return () => {
@@ -112,7 +113,7 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
 
   // focus on the selected Post if it exists
   useEffect(() => {
-    if (selectedPost && infoWindow) {
+    if (selectedPost && infoWindow && map.current) {
       selectClusterItems(null);
       const target = renderedMarkers.current[selectedPost.id];
       infoWindow.open(map.current.map, target);
@@ -133,7 +134,7 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
     outOfBounds.forEach((id) => {
       renderedMarkers.current[id].setMap(null);
       // remove marker from clusters
-      cluster.current.removeMarker(renderedMarkers.current[id]);
+      cluster.current?.removeMarker(renderedMarkers.current[id]);
       if (selectedPost?.id === id) {
         onSelectPost(null);
       }
@@ -143,7 +144,7 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
     // create markers for each item
     items.map((item) => {
       // don't add a marker if the marker already exists
-      if (renderedMarkers.current[item.id]) {
+      if (renderedMarkers.current[item.id] || !map.current) {
         return;
       }
       const position = new google.maps.LatLng(
@@ -160,9 +161,13 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
       google.maps.event.addListener(marker, "click", () => {
         const post = itemsLookup.current[marker.get("postId")];
         onSelectPost(post);
-        infoWindow.open(map.current.map, marker);
+        if (map.current) {
+          infoWindow.open(map.current.map, marker);
+        }
       });
-      cluster.current.addMarker(marker);
+      if (cluster.current) {
+        cluster.current.addMarker(marker);
+      }
       renderedMarkers.current[item.id] = marker;
     });
   }, [infoWindow, items]);

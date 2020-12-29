@@ -3,12 +3,19 @@ import * as React from "react";
 import { useCallback, useEffect, useState } from "react";
 import Button from "./Button/Button";
 
+interface BeforeInstallEvent extends Event {
+  prompt(): void;
+  userChoice: Promise<any>;
+}
+
 export const InstallBar = () => {
-  const [beforeinstall, setBeforeinstall] = useState(null);
+  const [beforeinstall, setBeforeinstall] = useState<BeforeInstallEvent | null>(
+    null
+  );
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    function beforeInstallCallback(e) {
+    function beforeInstallCallback(e: BeforeInstallEvent) {
       e.preventDefault();
       setBeforeinstall(e);
     }

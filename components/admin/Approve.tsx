@@ -19,7 +19,7 @@ export const Approve = ({
   const geoCollection = useGeofire("posts_approved");
 
   const approveDocument = useCallback(async () => {
-    if (db) {
+    if (db && geoCollection) {
       try {
         // await db
         //   .collection("posts_approved")

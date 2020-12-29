@@ -32,7 +32,7 @@ export const useFirestore = () => {
 
 export const useFireStorage = () => {
   const app = useContext(firebaseContext);
-  return React.useMemo(() => app.storage().ref(), [app]);
+  return React.useMemo(() => app && app.storage().ref(), [app]);
 };
 
 export const FirebaseProvider = ({
@@ -53,6 +53,7 @@ export const FirebaseProvider = ({
       });
       return app;
     }
+    return null;
   }, []);
 
   return <Provider value={fbase}>{children}</Provider>;

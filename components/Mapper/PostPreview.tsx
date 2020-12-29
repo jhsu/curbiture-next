@@ -16,10 +16,14 @@ const PostPreview = ({ google, height, marker }: PostPreview) => {
           lat: 40.75421,
           lng: -73.983534,
         }}
-        center={{
-          lat: marker?.lat(),
-          lng: marker?.lng(),
-        }}
+        center={
+          marker
+            ? {
+                lat: marker.lat(),
+                lng: marker.lng(),
+              }
+            : undefined
+        }
         google={google}
         disableDefaultUI
         gestureHandling="none"

@@ -30,17 +30,20 @@ const ShowPost = () => {
       showActions: false,
     });
 
-    return () => setBottomNav({ showActions: true });
+    return () => void setBottomNav({ showActions: true });
   }, []);
 
   useEffect(() => {
+    if (!store) {
+      return;
+    }
     if (id) {
       const docRef = store.collection("posts_approved").doc(id as string);
       docRef
         .get()
         .then((doc) => {
-          if (doc.exists) {
-            const data = doc.data();
+          const data = doc.data();
+          if (doc.exists && data) {
             const location = data.location as firebase.firestore.GeoPoint;
             setPost({
               id: doc.id,
@@ -63,7 +66,7 @@ const ShowPost = () => {
           // router.push("/");
         });
     }
-  }, [id]);
+  }, [store, id]);
 
   if (error) {
     return (
