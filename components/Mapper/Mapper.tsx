@@ -148,8 +148,8 @@ const MapContainer = ({ google }: { active?: boolean; google: GoogleAPI }) => {
         return;
       }
       const position = new google.maps.LatLng(
-        item.location?.lat,
-        item.location?.lng
+        item.location.lat,
+        item.location.lng
       );
       const marker = new google.maps.Marker({
         map: map.current.map,

@@ -100,7 +100,12 @@ const LocationInput = ({ google }: LocationInputProps) => {
     setError,
     control,
     formState: { isSubmitting },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      name: "",
+      address: "",
+    },
+  });
 
   const photo = watch("photo");
 
@@ -164,10 +169,10 @@ const LocationInput = ({ google }: LocationInputProps) => {
               photo_path: photoPath,
             });
           } catch (err) {
-            setError("post", {
-              type: "manual",
-              message: err.message,
-            });
+            // setError("post", {
+            //   type: "manual",
+            //   message: err.message,
+            // });
           }
 
           setShowAddPost(false);
@@ -228,9 +233,9 @@ const LocationInput = ({ google }: LocationInputProps) => {
   );
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full">
       {isSubmitting && <Progress percent={uploadPercent} />}
-      <div className="mb-6 px-3 flex-1 flex flex-col  h-fll overflow-auto">
+      <div className="px-3 flex-1 flex flex-col  h-fll overflow-auto">
         <form onSubmit={handleSubmit(onSubmit)}>
           {formError && <div>{formError.message}</div>}
           <div className="flex flex-col mb-4">
