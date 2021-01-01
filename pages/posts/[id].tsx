@@ -68,6 +68,12 @@ const ShowPost = () => {
     }
   }, [store, id]);
 
+  const onViewOnMap = useCallback(() => {
+    setSelectedPost(post);
+    setViewScope("map");
+    router.push("/");
+  }, [post]);
+
   if (error) {
     return (
       <div className="w-full h-full">
@@ -76,12 +82,6 @@ const ShowPost = () => {
       </div>
     );
   }
-
-  const onViewOnMap = useCallback(() => {
-    setSelectedPost(post);
-    setViewScope("map");
-    router.push("/");
-  }, [post]);
 
   return (
     <div className="flex-1 bg-gray-200 overflow-auto">
