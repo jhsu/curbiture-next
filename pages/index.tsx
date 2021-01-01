@@ -70,8 +70,8 @@ export default function IndexPage() {
           <div
             className={classnames(
               "bg-gray-100",
-              "w-full md:w-1/3 md:max-w-xs h-full flex flex-col",
-              "pt-2",
+              "absolute z-20 w-full md:w-1/3 md:max-w-xs h-full flex flex-col",
+              "pt-2 overflow-auto",
               { hidden: view !== "list" }
             )}
           >
