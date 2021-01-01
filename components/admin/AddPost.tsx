@@ -104,6 +104,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
     defaultValues: {
       name: "",
       address: "",
+      photo: [] as File[],
     },
   });
 
