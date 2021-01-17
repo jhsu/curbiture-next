@@ -29,6 +29,7 @@ export const BottomNav = () => {
   const [{ showActions }] = useAtom(bottomNavAtom);
 
   const homeRoute = router.pathname === "/";
+  const activePath = router.pathname;
 
   const onAddPost = useCallback(() => void setShowAddPost(true), [
     setShowAddPost,
@@ -84,10 +85,10 @@ export const BottomNav = () => {
           {view === "map" && (
             <>
               <Button icon onClick={onCenterUser} className="shadow-md">
-                <CrosshairIcon size="m" />
+                <CrosshairIcon label="Go to Current Location" size="m" />
               </Button>
               <Button icon onClick={onCenterHome} className="shadow-md">
-                <HomeIcon size="m" />
+                <HomeIcon label="Center on New York" size="m" />
               </Button>
             </>
           )}
@@ -97,31 +98,33 @@ export const BottomNav = () => {
               onClick={onAddPost}
               className={classnames("shadow-md")}
             >
-              <PlusIcon size="m" />
+              <PlusIcon label="Add Post" size="m" />
             </Button>
           </RequireLogin>
         </div>
       </div>
-      <Link href="/">
+      <Link href="/posts">
         <button
           className={classnames("nav-action", {
-            "nav-action__active": view === "list",
+            "nav-action__active": activePath === "/posts",
           })}
-          onClick={onViewList}
+          // onClick={onViewList}
         >
-          <ListIcon size="s" className="nav-action-button" />
+          <ListIcon label="Posts" size="s" className="nav-action-button" />
           <span>Posts</span>
         </button>
       </Link>
-      <button
-        className={classnames("nav-action", {
-          "nav-action__active": view === "map",
-        })}
-        onClick={onViewMap}
-      >
-        <MapIcon size="s" className="nav-action-button" />
-        <span>Map</span>
-      </button>
+      <Link href="/map">
+        <button
+          className={classnames("nav-action", {
+            "nav-action__active": activePath === "map",
+          })}
+          // onClick={onViewMap}
+        >
+          <MapIcon label="Map" size="s" className="nav-action-button" />
+          <span>Map</span>
+        </button>
+      </Link>
     </nav>
   );
 };

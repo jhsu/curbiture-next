@@ -40,6 +40,8 @@ const PostPreview = ({ google, height, marker }: PostPreview) => {
     </div>
   );
 };
-export default GoogleApiWrapper({
-  apiKey: GOOGLE_KEY,
-})(PostPreview);
+
+export default PostPreview;
+// export default GoogleApiWrapper({
+//   apiKey: GOOGLE_KEY,
+// })(PostPreview);

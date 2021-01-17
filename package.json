@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "next",
+    "debug": "NODE_OPTIONS='--inspect' next",
     "export": "next export",
     "build": "next build",
     "start": "next start",
@@ -10,7 +11,10 @@
   },
   "dependencies": {
     "@googlemaps/markerclustererplus": "^1.0.3",
+    "@radix-ui/react-accessible-icon": "0.0.1",
+    "@radix-ui/react-icons": "^1.0.0",
     "@radix-ui/react-progress": "0.0.1",
+    "@types/google-map-react": "^2.1.0",
     "@types/googlemaps": "3.40.3",
     "@types/node": "14.14.8",
     "@types/react": "16.9.56",
@@ -18,6 +22,7 @@
     "filestack-js": "^3.20.0",
     "firebase": "8.0.2",
     "geofirestore": "^4.3.0",
+    "google-map-react": "^2.1.9",
     "google-maps-react": "2.0.6",
     "jotai": "^0.11.2",
     "next": "latest",

@@ -31,7 +31,7 @@ export const useVisibleLocations = () => {
   const cancelSubscription = useRef<() => void>();
 
   const updateSubscription = useCallback(
-    (bounds) => {
+    (bounds: google.maps.LatLngBounds) => {
       if (!geofire) {
         return;
       }

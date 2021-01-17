@@ -79,7 +79,6 @@ const LocationInput = ({ google }: LocationInputProps) => {
   const router = useRouter();
   const db = useFirestore();
   const storage = useFireStorage();
-  const [bounds] = useAtom(boundsAtom);
   const [createCollection] = useAtom(createScopeAtom);
 
   const [, setShowAddPost] = useAtom(showAddPostAtom);
@@ -104,11 +103,11 @@ const LocationInput = ({ google }: LocationInputProps) => {
     defaultValues: {
       name: "",
       address: "",
-      photo: [] as File[],
+      photo: null,
     },
   });
 
-  const photo = watch("photo");
+  const photo = watch("photo") as FileList | null;
 
   const [uploadPercent, setPercent] = useState(0);
 
@@ -120,14 +119,15 @@ const LocationInput = ({ google }: LocationInputProps) => {
     }: {
       address: string;
       name: string;
-      photo: File[];
+      photo: FileList;
     }) => {
-      if (db && google && storage && bounds) {
+      console.log("submitting");
+      if (db && google && storage) {
         const key = translator.new();
         try {
           const loc = await geocodeLocation(geocoder, {
             address,
-            bounds,
+            // bounds,
           });
 
           // create the record
@@ -136,6 +136,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
           let photoPath: string | undefined = undefined;
 
           if (photo && photo[0]) {
+            console.log(photo);
             // upload photo
             const file = photo[0];
             const metadata = {
@@ -198,17 +199,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
         reset();
       }
     },
-    [
-      createCollection,
-      db,
-      geocoder,
-      google,
-      bounds,
-      reset,
-      setError,
-      storage,
-      router,
-    ]
+    [createCollection, db, geocoder, google, reset, setError, storage, router]
   );
 
   const [loc, setLoc] = useState<google.maps.LatLng | null>(null);
@@ -305,7 +296,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
                     // TODO: debounce this
                     onAddressChangeDb(geocoder, {
                       address: e.target.value,
-                      bounds,
+                      // bounds,
                     });
                   }}
                   onBlur={onBlur}
@@ -325,7 +316,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
           </div>
         </form>
         <div className="flex-1">
-          <PostPreview height={200} marker={loc} />
+          <PostPreview google={google} height={200} marker={loc} />
         </div>
       </div>
     </div>

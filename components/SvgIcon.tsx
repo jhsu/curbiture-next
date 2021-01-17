@@ -1,3 +1,4 @@
+import * as AccessibleIcon from "@radix-ui/react-accessible-icon";
 import classnames from "classnames";
 import * as React from "react";
 
@@ -298,6 +299,7 @@ interface SvgProps extends React.HTMLAttributes<SVGElement> {
   size?: "s" | "m" | "l";
   className?: string;
   children?: React.ReactNode;
+  label: string;
 }
 const sizeClasses = {
   s: "h-4 w-4",
@@ -307,21 +309,24 @@ const sizeClasses = {
 export const SvgIcon = ({
   children,
   size = "s",
+  label,
   className,
   ...svgProps
 }: SvgProps) => {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="192"
-      height="192"
-      fill="#000000"
-      viewBox="0 0 256 256"
-      {...svgProps}
-      className={classnames("stroke-current", className, sizeClasses[size])}
-    >
-      {children}
-    </svg>
+    <AccessibleIcon.Root label={label}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="192"
+        height="192"
+        fill="#000000"
+        viewBox="0 0 256 256"
+        {...svgProps}
+        className={classnames("stroke-current", className, sizeClasses[size])}
+      >
+        {children}
+      </svg>
+    </AccessibleIcon.Root>
   );
 };
 
@@ -346,11 +351,19 @@ export const UserIcon = (props: SvgProps) => {
 };
 
 export const CloseIcon = (props: SvgProps) => {
-  return <SvgIcon {...props}>{CLOSE}</SvgIcon>;
+  return (
+    <SvgIcon {...props} label="Close">
+      {CLOSE}
+    </SvgIcon>
+  );
 };
 
 export const HomeIcon = (props: SvgProps) => {
-  return <SvgIcon {...props}>{HOUSE}</SvgIcon>;
+  return (
+    <SvgIcon {...props} label="Home">
+      {HOUSE}
+    </SvgIcon>
+  );
 };
 
 export const TrashIcon = (props: SvgProps) => {
