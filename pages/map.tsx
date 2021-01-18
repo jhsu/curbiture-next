@@ -2,22 +2,37 @@ import Map from "components/Map/Map";
 import { Bounds } from "google-map-react";
 import { useVisibleLocations } from "hooks/firebase";
 import { useAtom } from "jotai";
-import { useMemo } from "react";
-import { boundsAtom, locAtom } from "store";
+import { boundsAtom, locAtom, mapAtom } from "store";
 
 const MapPage = () => {
   useVisibleLocations();
   const [items] = useAtom(locAtom);
   const [, setBounds] = useAtom(boundsAtom);
+  const [{ center, zoom }, setMap] = useAtom(mapAtom);
   return (
     <div className="map-container h-full" draggable={false}>
       <Map
         markers={items}
-        onBoundsChange={(bounds: Bounds) => {
+        defaultCenter={center}
+        initialZoom={zoom}
+        onBoundsChange={({ sw, ne }: Bounds, zoom: number) => {
           if (window.google) {
-            setBounds(
-              new window.google.maps.LatLngBounds(bounds.sw, bounds.ne)
+            const bounds: google.maps.LatLngBounds = new window.google.maps.LatLngBounds(
+              sw,
+              ne
             );
+            setMap((prev) => {
+              const center = bounds.getCenter();
+              return {
+                ...prev,
+                zoom,
+                center: {
+                  lat: center.lat(),
+                  lng: center.lng(),
+                },
+              };
+            });
+            setBounds(bounds);
           }
         }}
       />

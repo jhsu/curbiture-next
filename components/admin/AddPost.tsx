@@ -51,7 +51,7 @@ const geocodeLocation = async (
     bounds,
   }: {
     address: string;
-    bounds: google.maps.LatLngBounds;
+    bounds?: google.maps.LatLngBounds;
   }
 ) => {
   return new Promise<google.maps.LatLng>((resolve, reject) => {
@@ -110,6 +110,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
   const photo = watch("photo") as FileList | null;
 
   const [uploadPercent, setPercent] = useState(0);
+  const [bounds] = useAtom(boundsAtom);
 
   const onSubmit = useCallback(
     async ({
@@ -121,13 +122,12 @@ const LocationInput = ({ google }: LocationInputProps) => {
       name: string;
       photo: FileList;
     }) => {
-      console.log("submitting");
       if (db && google && storage) {
         const key = translator.new();
         try {
           const loc = await geocodeLocation(geocoder, {
             address,
-            // bounds,
+            bounds,
           });
 
           // create the record
@@ -136,7 +136,6 @@ const LocationInput = ({ google }: LocationInputProps) => {
           let photoPath: string | undefined = undefined;
 
           if (photo && photo[0]) {
-            console.log(photo);
             // upload photo
             const file = photo[0];
             const metadata = {
@@ -227,7 +226,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
   return (
     <div className="flex flex-col h-full">
       {isSubmitting && <Progress percent={uploadPercent} />}
-      <div className="px-3 flex-1 flex flex-col  h-fll overflow-auto">
+      <div className="px-3 flex-1 h-full pb-4 overflow-auto">
         <form onSubmit={handleSubmit(onSubmit)}>
           {formError && <div>{formError.message}</div>}
           <div className="flex flex-col mb-4">
@@ -315,7 +314,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
             </Button>
           </div>
         </form>
-        <div className="flex-1">
+        <div className="mb-4" style={{ height: 200 }}>
           <PostPreview google={google} height={200} marker={loc} />
         </div>
       </div>

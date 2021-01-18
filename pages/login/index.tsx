@@ -2,6 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 
 import { Login as LoginForm } from "components/auth/Login";
+import { FacebookLogin } from "components/FacebookLogin";
 
 const Login = () => {
   return (
@@ -21,6 +22,10 @@ const Login = () => {
             <a>Forgot my password</a>
           </Link>
         </div>
+      </div>
+
+      <div className="p-2">
+        <FacebookLogin />
       </div>
     </div>
   );

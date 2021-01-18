@@ -5,6 +5,7 @@ import {
   bottomNavAtom,
   clearPostSelection,
   currentPositionAtom,
+  currentUserAtom,
   showAddPostAtom,
 } from "store";
 import classnames from "classnames";
@@ -28,22 +29,14 @@ export const BottomNav = () => {
   // const [, clearSelection] = useAtom(clearPostSelection);
   const [{ showActions }] = useAtom(bottomNavAtom);
 
+  const [currentUser] = useAtom(currentUserAtom);
+
   const homeRoute = router.pathname === "/";
   const activePath = router.pathname;
 
   const onAddPost = useCallback(() => void setShowAddPost(true), [
     setShowAddPost,
   ]);
-  const onViewMap = useCallback(() => {
-    setView("map");
-    // clearSelection();
-    router.push("/");
-  }, [setView]);
-  const onViewList = useCallback(() => {
-    setView("list");
-    // clearSelection();
-    router.push("/");
-  }, [setView]);
 
   const onCenterUser = useCallback(() => {
     if (navigator.geolocation) {
@@ -72,6 +65,18 @@ export const BottomNav = () => {
       },
     });
   }, []);
+
+  const onStartAdd = useCallback(
+    (e) => {
+      if (!currentUser) {
+        e.preventDefault();
+        e.stopPropagation();
+        // TODO: show login
+        router.push("/login");
+      }
+    },
+    [currentUser]
+  );
 
   return (
     <nav className="bottom-nav">
@@ -108,7 +113,6 @@ export const BottomNav = () => {
           className={classnames("nav-action", {
             "nav-action__active": activePath === "/posts",
           })}
-          // onClick={onViewList}
         >
           <ListIcon label="Posts" size="s" className="nav-action-button" />
           <span>Posts</span>
@@ -117,12 +121,22 @@ export const BottomNav = () => {
       <Link href="/map">
         <button
           className={classnames("nav-action", {
-            "nav-action__active": activePath === "map",
+            "nav-action__active": activePath === "/map",
           })}
-          // onClick={onViewMap}
         >
           <MapIcon label="Map" size="s" className="nav-action-button" />
           <span>Map</span>
+        </button>
+      </Link>
+      <Link href="/posts/new">
+        <button
+          className={classnames("nav-action", {
+            "nav-action__active": activePath === "/posts/new",
+          })}
+          onClick={onStartAdd}
+        >
+          <PlusIcon label="Add Post" size="s" />
+          <span>Add Post</span>
         </button>
       </Link>
     </nav>

@@ -49,9 +49,13 @@ locAtom.debugLabel = "Posts";
 export const unapprovedPosts = atom<ItemLocation[]>([]);
 
 export const mapAtom = atom<{
-  bounds: google.maps.LatLngBounds | null;
+  bounds?: google.maps.LatLngBounds;
+  center?: google.maps.LatLngLiteral;
+  zoom?: number;
 }>({
-  bounds: null,
+  bounds: undefined,
+  center: undefined,
+  zoom: undefined,
 });
 
 export const boundsAtom = atom(

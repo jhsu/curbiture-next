@@ -9,10 +9,17 @@ import { ItemLocation } from "store";
 import Link from "next/link";
 
 interface MapProps {
+  defaultCenter?: google.maps.LatLngLiteral;
+  initialZoom?: number;
   markers: ItemLocation[];
-  onBoundsChange(bounds: Bounds): void;
+  onBoundsChange(bounds: Bounds, zoom: number): void;
 }
-const Map = ({ markers, onBoundsChange }: MapProps) => {
+const Map = ({
+  defaultCenter,
+  initialZoom,
+  markers,
+  onBoundsChange,
+}: MapProps) => {
   const [googleMap, setGoogleMap] = useState<google.maps.Map>();
   const dummyMarkers = useMemo<ItemLocation[]>(
     () => [
@@ -58,7 +65,7 @@ const Map = ({ markers, onBoundsChange }: MapProps) => {
         });
         marker.set("data", m);
 
-        google.maps.event.addListener(marker, "click", (e) => {
+        google.maps.event.addListener(marker, "click", () => {
           const pos = marker.getPosition();
           if (pos) {
             googleMap.panTo(pos);
@@ -101,24 +108,18 @@ const Map = ({ markers, onBoundsChange }: MapProps) => {
     };
   }, [markers, googleMap]);
 
-  const centerOn = useCallback(
-    (loc: google.maps.LatLngLiteral) => {
-      if (googleMap) {
-        googleMap.setZoom(16);
-        googleMap.panTo(loc);
-      }
-    },
-    [googleMap]
-  );
-
   const infoLocation = selected ? selected[0]?.location : null;
 
   const onMapChange = useCallback(
-    ({ bounds }: { bounds: GoogleMap.Bounds }) => {
-      onBoundsChange(bounds);
+    ({ bounds, zoom }: { bounds: GoogleMap.Bounds; zoom: number }) => {
+      onBoundsChange(bounds, zoom);
     },
     [onBoundsChange]
   );
+
+  const onGoogleApiLoaded = useCallback(({ map }: { map: google.maps.Map }) => {
+    setGoogleMap(map);
+  }, []);
 
   return (
     <div className="map-container h-full" draggable={false}>
@@ -137,14 +138,16 @@ const Map = ({ markers, onBoundsChange }: MapProps) => {
           key: GOOGLE_KEY,
           libraries: ["geometry"],
         }}
-        defaultCenter={{
-          lat: 40.75421,
-          lng: -73.983534,
-        }}
+        defaultCenter={
+          defaultCenter || {
+            lat: 40.75421,
+            lng: -73.983534,
+          }
+        }
         onChange={onMapChange}
-        defaultZoom={8}
+        defaultZoom={initialZoom || 8}
         yesIWantToUseGoogleMapApiInternals
-        onGoogleApiLoaded={({ map }) => void setGoogleMap(map)}
+        onGoogleApiLoaded={onGoogleApiLoaded}
       >
         {infoLocation && (
           <InfoWindow {...infoLocation} onClose={() => void setSelected([])}>
