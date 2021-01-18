@@ -1,9 +1,7 @@
 import { useAtom } from "jotai";
 import { useCallback } from "react";
 import {
-  activeView,
   bottomNavAtom,
-  clearPostSelection,
   currentPositionAtom,
   currentUserAtom,
   showAddPostAtom,
@@ -23,7 +21,6 @@ import { useRouter } from "next/router";
 
 export const BottomNav = () => {
   const router = useRouter();
-  const [view, setView] = useAtom(activeView);
   const [showAddPost, setShowAddPost] = useAtom(showAddPostAtom);
   const [, setUserLocation] = useAtom(currentPositionAtom);
   // const [, clearSelection] = useAtom(clearPostSelection);
@@ -87,7 +84,7 @@ export const BottomNav = () => {
             { "nav-actions__hidden": !homeRoute }
           )}
         >
-          {view === "map" && (
+          {activePath === "/map" && (
             <>
               <Button icon onClick={onCenterUser} className="shadow-md">
                 <CrosshairIcon label="Go to Current Location" size="m" />

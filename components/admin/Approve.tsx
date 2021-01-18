@@ -81,7 +81,7 @@ export const Approve = ({
         approve
       </Button>
       <Button onClick={onRemovePost}>
-        <TrashIcon size="m" />
+        <TrashIcon label="Remove post" size="m" />
       </Button>
     </>
   );

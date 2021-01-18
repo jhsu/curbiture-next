@@ -89,7 +89,7 @@ const ShowPost = () => {
         <h2 className="flex-1 px-2">{post?.name}</h2>
         <Link href="/">
           <Button icon>
-            <CloseIcon />
+            <CloseIcon label="Close" />
           </Button>
         </Link>
       </div>
@@ -99,7 +99,7 @@ const ShowPost = () => {
           <div>
             <p>{post.address}</p>
             <Button onClick={onViewOnMap}>
-              <MapIcon size="m" />
+              <MapIcon label="View on Map" size="m" />
             </Button>
           </div>
         </>

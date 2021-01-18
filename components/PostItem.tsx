@@ -37,7 +37,7 @@ export const PostItem = ({
       </div>
       <div className="flex flex-row items-center">
         <Button onClick={() => onViewOnMap(post)}>
-          <MapIcon size="m" />
+          <MapIcon label="map" size="m" />
         </Button>
         {approving && <Approve className="ml-1" post={post} />}
       </div>

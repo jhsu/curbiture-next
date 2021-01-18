@@ -58,7 +58,7 @@ export default function IndexPage() {
               <div>
                 <div className="flex flex-row justify-end p-2">
                   <Button onClick={() => void setShowAddPost(false)}>
-                    <ArrowLeft size="m" />
+                    <ArrowLeft label="Go back" size="m" />
                   </Button>
                 </div>
               </div>
