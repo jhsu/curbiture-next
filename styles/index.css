@@ -1,7 +1,6 @@
 @layer base {
   html,
-  body,
-  #__next {
+  body {
     height: 100%;
     width: 100%;
   }
@@ -29,6 +28,9 @@
   .heading {
     @apply leading-relaxed mb-2;
   }
+}
+#__next {
+  height: 100%;
 }
 
 @layer components {
