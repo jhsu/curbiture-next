@@ -1,3 +1,4 @@
+import Layout from "components/Layout/Layout";
 import Map from "components/Map/Map";
 import { Bounds } from "google-map-react";
 import { useVisibleLocations } from "hooks/firebase";
@@ -10,33 +11,35 @@ const MapPage = () => {
   const [, setBounds] = useAtom(boundsAtom);
   const [{ center, zoom }, setMap] = useAtom(mapAtom);
   return (
-    <div className="map-container h-full" draggable={false}>
-      <Map
-        markers={items}
-        defaultCenter={center}
-        initialZoom={zoom}
-        onBoundsChange={({ sw, ne }: Bounds, zoom: number) => {
-          if (window.google) {
-            const bounds: google.maps.LatLngBounds = new window.google.maps.LatLngBounds(
-              sw,
-              ne
-            );
-            setMap((prev) => {
-              const center = bounds.getCenter();
-              return {
-                ...prev,
-                zoom,
-                center: {
-                  lat: center.lat(),
-                  lng: center.lng(),
-                },
-              };
-            });
-            setBounds(bounds);
-          }
-        }}
-      />
-    </div>
+    <Layout>
+      <div className="map-container h-full" draggable={false}>
+        <Map
+          markers={items}
+          defaultCenter={center}
+          initialZoom={zoom}
+          onBoundsChange={({ sw, ne }: Bounds, zoom: number) => {
+            if (window.google) {
+              const bounds: google.maps.LatLngBounds = new window.google.maps.LatLngBounds(
+                sw,
+                ne
+              );
+              setMap((prev) => {
+                const center = bounds.getCenter();
+                return {
+                  ...prev,
+                  zoom,
+                  center: {
+                    lat: center.lat(),
+                    lng: center.lng(),
+                  },
+                };
+              });
+              setBounds(bounds);
+            }
+          }}
+        />
+      </div>
+    </Layout>
   );
 };
 

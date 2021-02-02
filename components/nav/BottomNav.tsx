@@ -63,18 +63,6 @@ export const BottomNav = () => {
     });
   }, []);
 
-  const onStartAdd = useCallback(
-    (e) => {
-      if (!currentUser) {
-        e.preventDefault();
-        e.stopPropagation();
-        // TODO: show login
-        router.push("/login");
-      }
-    },
-    [currentUser]
-  );
-
   return (
     <nav className="bottom-nav">
       <div className={classnames({ hidden: showAddPost || !showActions })}>
@@ -125,17 +113,18 @@ export const BottomNav = () => {
           <span>Map</span>
         </button>
       </Link>
-      <Link href="/posts/new">
-        <button
-          className={classnames("nav-action", {
-            "nav-action__active": activePath === "/posts/new",
-          })}
-          onClick={onStartAdd}
-        >
-          <PlusIcon label="Add Post" size="s" />
-          <span>Add Post</span>
-        </button>
-      </Link>
+      {currentUser && (
+        <Link href="/posts/new">
+          <button
+            className={classnames("nav-action", {
+              "nav-action__active": activePath === "/posts/new",
+            })}
+          >
+            <PlusIcon label="Add Post" size="s" />
+            <span>Add Post</span>
+          </button>
+        </Link>
+      )}
     </nav>
   );
 };

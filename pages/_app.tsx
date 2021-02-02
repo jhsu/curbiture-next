@@ -21,10 +21,7 @@ function MyApp({ Component, pageProps }) {
       </Head>
       <FirebaseProvider>
         <Provider>
-          <div className="h-full flex flex-col">
-            <Component {...pageProps} />
-            <BottomNav />
-          </div>
+          <Component {...pageProps} />
         </Provider>
       </FirebaseProvider>
     </>

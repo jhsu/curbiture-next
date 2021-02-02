@@ -1,10 +1,20 @@
-import * as React from "react";
+// import * as React from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 
 import { Login as LoginForm } from "components/auth/Login";
 import { FacebookLogin } from "components/FacebookLogin";
+import { useRouter } from "next/router";
+import { useFirebaseUser } from "hooks/firebase";
 
 const Login = () => {
+  const router = useRouter();
+  const { user, isReady } = useFirebaseUser();
+  useEffect(() => {
+    if (isReady && user) {
+      router.push("/posts");
+    }
+  }, [router, user, isReady]);
   return (
     <div className="flex-1">
       <header>

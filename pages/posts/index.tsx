@@ -1,10 +1,11 @@
+import Layout from "components/Layout/Layout";
 import { Posts } from "components/Posts";
 
 const PostsPage = () => {
   return (
-    <div className="flex-1">
+    <Layout>
       <Posts />
-    </div>
+    </Layout>
   );
 };
 export default PostsPage;

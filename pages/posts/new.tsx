@@ -1,10 +1,11 @@
 import { AddPosting } from "components/admin/AddPost";
+import Layout from "components/Layout/Layout";
 
 const NewPost = () => {
   return (
-    <div className="flex-1 map-container overflow-auto">
+    <Layout requireUser>
       <AddPosting />
-    </div>
+    </Layout>
   );
 };
 

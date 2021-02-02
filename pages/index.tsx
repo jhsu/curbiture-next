@@ -1,89 +1,53 @@
-import classnames from "classnames";
-import { useAtom } from "jotai";
-import { useCallback } from "react";
+// import classnames from "classnames";
+// import { useCallback } from "react";
 
 import Link from "next/link";
 
-import { AddPosting } from "components/admin/AddPost";
-import Button from "components/Button/Button";
-import { FacebookLogin } from "components/FacebookLogin";
-import { Mapper } from "components/Mapper/Mapper";
-import { Posts } from "components/Posts";
-import {
-  ArrowLeft,
-  // UserIcon,
-} from "../components/SvgIcon";
-import { activeView, currentUserAtom, showAddPostAtom } from "../store";
-import { NotLoggedIn } from "components/auth/NotLoggedIn";
-import { useFirebaseAuth } from "hooks/firebase";
-import { CurrentUserDisplay } from "components/auth/CurrentUserDisplay";
-
 export default function IndexPage() {
-  const [view] = useAtom(activeView);
-  const auth = useFirebaseAuth();
-  const [, setUser] = useAtom(currentUserAtom);
-  const [showAddPost, setShowAddPost] = useAtom(showAddPostAtom);
-
-  const onSignout = useCallback(async () => {
-    await auth.signOut();
-    setUser(null);
-  }, [auth, setUser]);
-
   return (
     <>
-      <style jsx>
-        {`
-          #__next {
-            height: 100%;
-          }
-        `}
-      </style>
-      <div className="flex flex-col flex-1 bg-gray-900">
-        <div className="p-1 flex flex-row text-gray-100 justify-end top-nav">
-          <NotLoggedIn>
-            <FacebookLogin />
-            <Link href="/signup">
-              <a>Sign up</a>
-            </Link>
-            <span>or</span>
-            <Link href="/login">
-              <a>Login</a>
-            </Link>
-          </NotLoggedIn>
-          <CurrentUserDisplay onSignout={onSignout} />
+      <header>
+        <h1 className="text-center">Curbiture</h1>
+      </header>
+      <main>
+        <section role="banner" className="mx-auto max-w-3xl h-40 my-10">
+          <p>About this app</p>
+        </section>
+        <div className="my-10">
+          <p>
+            Sign up to be notified when we launch our <i>Beta</i>.
+          </p>
+          <iframe
+            src="https://curbiture.substack.com/embed"
+            height="320"
+            style={{
+              width: "100%",
+              border: "1px solid #EEE",
+              backgroundColor: "white",
+            }}
+            frameBorder="0"
+            scrolling="no"
+          ></iframe>
         </div>
-        <div className="overflow-hidden flex-1 flex flex-row relative rounded-t-lg">
-          {showAddPost && (
-            <div className="absolute h-full w-full bg-white z-10 flex flex-col">
-              <div>
-                <div className="flex flex-row justify-end p-2">
-                  <Button onClick={() => void setShowAddPost(false)}>
-                    <ArrowLeft label="Go back" size="m" />
-                  </Button>
-                </div>
-              </div>
-              <div className="flex-1 map-container overlow-auto">
-                <AddPosting />
-              </div>
-            </div>
-          )}
-          <div
-            className={classnames(
-              "bg-gray-100",
-              "absolute z-20 w-full md:w-1/3 md:max-w-xs h-full flex flex-col",
-              "pt-2 overflow-auto",
-              { hidden: view !== "list" }
-            )}
-          >
-            {view === "list" && <Posts />}
+      </main>
+      <footer>
+        <div className="mx-auto max-w-3xl flex">
+          <div className="flex flex-col flex-1">
+            <Link href="/login">Login</Link>
+            <Link href="/map">Map</Link>
+            <Link href="/posts">Posts</Link>
           </div>
-          <div className="flex flex-col flex-1 relative">
-            <div className="flex-1 map-container">
-              <Mapper active={view === "map" && !showAddPost} />
-            </div>
+          <div className="flex flex-col flex-1">
+            <a href="https://instagram.com/curbiturenyc" target="_blank">
+              Instagram
+            </a>
+            <a href="https://curbiture.substack.com" target="_blank">
+              Mailing list
+            </a>
           </div>
         </div>
-      </div>
+        <div className="mx-auto max-w-3xl">Curbiture &copy; 2021</div>
+      </footer>
     </>
   );
 }

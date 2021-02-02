@@ -1,25 +1,40 @@
 import firebase from "firebase/app";
 import { useAtom } from "jotai";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGeofire } from "../components/firebase";
 import { debounce } from "../components/utils/utils";
-import { boundsAtom, loadingItemsAtom, locAtom } from "../store";
-
-// function updateOrAdd<T extends { id: string }>(list: T[], item: T): T[] {
-//   let found = false;
-//   const updated = list.map((curr) => {
-//     if (!found && curr.id === item.id) {
-//       found = true;
-//       return curr;
-//     }
-//     return curr;
-//   });
-//   return found ? updated : [...updated, item];
-// }
+import {
+  boundsAtom,
+  currentUserAtom,
+  loadingItemsAtom,
+  locAtom,
+} from "../store";
 
 export const useFirebaseAuth = () => {
   const auth = useMemo(() => firebase.auth(), [firebase]);
   return auth;
+};
+
+export const useFirebaseUser = () => {
+  const auth = useFirebaseAuth();
+  const router = useRouter();
+  const [currentUser, setUser] = useAtom(currentUserAtom);
+  const [checkedUser, setCheckedUser] = useState(false);
+
+  useEffect(() => {
+    if (auth) {
+      return auth.onAuthStateChanged((user) => {
+        if (user) {
+          setUser(user);
+        } else {
+          setUser(null);
+        }
+        setCheckedUser(true);
+      });
+    }
+  }, [auth, router]);
+  return { user: currentUser, isReady: checkedUser };
 };
 
 export const useVisibleLocations = () => {
@@ -32,7 +47,7 @@ export const useVisibleLocations = () => {
 
   const updateSubscription = useCallback(
     (bounds: google.maps.LatLngBounds) => {
-      if (!geofire) {
+      if (!geofire || !google.maps?.geometry) {
         return;
       }
       setLoading(true);
