@@ -79,8 +79,6 @@ const LocationInput = ({ google }: LocationInputProps) => {
 
   const [, setShowAddPost] = useAtom(showAddPostAtom);
 
-  console.log("currentUser ");
-
   const geocoder = useMemo(() => google && new google.maps.Geocoder(), [
     google,
   ]);
