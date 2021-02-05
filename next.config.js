@@ -12,4 +12,5 @@ module.exports = withPWA({
     }
     return config;
   },
+  // future: { webpack5: true },
 });
