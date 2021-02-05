@@ -1,4 +1,3 @@
-import firebase from "firebase/app";
 import "firebase/firestore";
 import { GoogleAPI, GoogleApiWrapper } from "google-maps-react";
 import { useAtom } from "jotai";
@@ -10,18 +9,14 @@ import { GOOGLE_KEY } from "../../google";
 import {
   boundsAtom,
   createScopeAtom,
+  currentUserAtom,
   showAddPostAtom,
-  updateSelectedPostAtom,
 } from "../../store";
 import Button from "../Button/Button";
 import { useFireStorage, useFirestore } from "../firebase";
 
-import short from "short-uuid";
 import PostPreview from "components/Mapper/PostPreview";
 import { debounce } from "components/utils/utils";
-import Progress from "components/Progress";
-
-const translator = short();
 
 const PhotoPreview = ({ file }: { file: File }) => {
   const imgRef = useRef<HTMLImageElement>(null);
@@ -79,11 +74,12 @@ const LocationInput = ({ google }: LocationInputProps) => {
   const router = useRouter();
   const db = useFirestore();
   const storage = useFireStorage();
+  const [currentUser] = useAtom(currentUserAtom);
   const [createCollection] = useAtom(createScopeAtom);
 
   const [, setShowAddPost] = useAtom(showAddPostAtom);
 
-  const [, onSelectPost] = useAtom(updateSelectedPostAtom);
+  console.log("currentUser ");
 
   const geocoder = useMemo(() => google && new google.maps.Geocoder(), [
     google,
@@ -106,10 +102,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
       photo: null,
     },
   });
-
   const photo = watch("photo") as FileList | null;
-
-  const [uploadPercent, setPercent] = useState(0);
   const [bounds] = useAtom(boundsAtom);
 
   const onSubmit = useCallback(
@@ -122,75 +115,36 @@ const LocationInput = ({ google }: LocationInputProps) => {
       name: string;
       photo: FileList;
     }) => {
-      if (db && google && storage) {
-        const key = translator.new();
+      if (db && google && storage && currentUser) {
+        // const key = translator.new();
         try {
           const loc = await geocodeLocation(geocoder, {
             address,
             bounds,
           });
 
-          // create the record
-          let postRef: firebase.firestore.DocumentReference;
-          let photoUrl: string | undefined = undefined;
-          let photoPath: string | undefined = undefined;
+          const idToken = await currentUser?.getIdToken();
+          const headers = {
+            Authorization: `bearer ${idToken}`,
+            Accept: "application/json",
+          };
 
           if (photo && photo[0]) {
             // upload photo
             const file = photo[0];
-            const metadata = {
-              contentType: file.type,
-            };
-            const lastDot = file.name.lastIndexOf(".");
-            const ext = file.name.substring(lastDot + 1);
-            photoPath = `posts/${key}.${ext}`;
-            const uploadTask = storage.child(photoPath).put(file, metadata);
-            uploadTask.on("stage_change", (snapshot) => {
-              const progress =
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              setPercent(progress);
-            });
-            await uploadTask.then(async (snapshot) => {
-              photoUrl = await snapshot.ref.getDownloadURL();
-            });
+            const formData = new FormData();
+            formData.append("photo", file);
+            formData.append("name", name);
+            formData.append("address", address);
+            formData.append("location[latitude]", loc.lat().toString());
+            formData.append("location[longitude]", loc.lng().toString());
+            await fetch("/api/posts", {
+              method: "POST",
+              headers,
+              body: formData,
+            }).then((res) => res.json());
           }
-
-          const timestamp = new Date();
-
-          try {
-            // const key = `${loc.toString()}-${new Date().getTime()}`;
-            postRef = db.collection(createCollection).doc(key);
-
-            await postRef.set({
-              name,
-              created_at: timestamp,
-              address,
-              location: new firebase.firestore.GeoPoint(loc.lat(), loc.lng()),
-              photo: photoUrl,
-              photo_path: photoPath,
-            });
-          } catch (err) {
-            // setError("post", {
-            //   type: "manual",
-            //   message: err.message,
-            // });
-          }
-
-          setShowAddPost(false);
-          // TODO: probably show on map
-          onSelectPost({
-            id: key,
-            name,
-            created_at: timestamp,
-            address,
-            location: {
-              lat: loc.lat(),
-              lng: loc.lng(),
-            },
-            photo: photoUrl,
-            photo_path: photoPath,
-          });
-          router.push("/");
+          router.push("/map");
         } catch (err) {
           // TODO: handle error
           console.error("failed to geocode location");
@@ -198,7 +152,17 @@ const LocationInput = ({ google }: LocationInputProps) => {
         reset();
       }
     },
-    [createCollection, db, geocoder, google, reset, setError, storage, router]
+    [
+      currentUser,
+      createCollection,
+      db,
+      geocoder,
+      google,
+      reset,
+      setError,
+      storage,
+      router,
+    ]
   );
 
   const [loc, setLoc] = useState<google.maps.LatLng | null>(null);
@@ -225,7 +189,6 @@ const LocationInput = ({ google }: LocationInputProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      {isSubmitting && <Progress percent={uploadPercent} />}
       <div className="px-3 flex-1 h-full pb-4 overflow-auto">
         <form onSubmit={handleSubmit(onSubmit)}>
           {formError && <div>{formError.message}</div>}
@@ -292,9 +255,9 @@ const LocationInput = ({ google }: LocationInputProps) => {
                   }}
                   onChange={(e) => {
                     onChange(e);
-                    // TODO: debounce this
                     onAddressChangeDb(geocoder, {
                       address: e.target.value,
+                      // TODO: use city/region bounds
                       // bounds,
                     });
                   }}

@@ -1,4 +1,5 @@
 import { atom } from "jotai";
+import firebase from "firebase";
 
 export interface LatLngLiteral {
   lat: number;
@@ -25,13 +26,13 @@ export const createScopeAtom = atom<string>("posts_pending");
 export const viewScopeAtom = atom<string>("posts_approved");
 
 // export const userAtom: WritableAtom<User, User> = atom<User, User | null>(null);
-export const userAtom = atom<{ currentUser: User | null }>({
+export const userAtom = atom<{ currentUser: firebase.User | null }>({
   currentUser: null,
 });
 
 export const currentUserAtom = atom(
   (get) => get(userAtom).currentUser,
-  (get, set, user: User | null) => {
+  (get, set, user: firebase.User | null) => {
     set(userAtom, { ...get(userAtom), currentUser: user });
   }
 );

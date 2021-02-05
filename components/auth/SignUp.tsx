@@ -18,6 +18,7 @@ export const SignUp = ({ onSignup }: SignUpProps) => {
     async ({ email, password }) => {
       try {
         const user = await auth.createUserWithEmailAndPassword(email, password);
+        auth.currentUser?.sendEmailVerification();
         setUser(user.user);
         if (onSignup) {
           onSignup();
