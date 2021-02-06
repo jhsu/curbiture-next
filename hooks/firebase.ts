@@ -2,7 +2,7 @@ import firebase from "firebase/app";
 import { useAtom } from "jotai";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useGeofire } from "../components/firebase";
+import { useFireStorage, useGeofire } from "../components/firebase";
 import { debounce } from "../components/utils/utils";
 import {
   boundsAtom,
@@ -191,4 +191,37 @@ export const useFirebaseLocations = (
       });
     // return () => void set([]);
   }, [db, collection, set]);
+};
+
+export const useStorageUrl = (ref: string | undefined): string | null => {
+  const storage = useFireStorage();
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (storage && ref) {
+      storage
+        .child(ref)
+        .getDownloadURL()
+        .then(
+          (url) => {
+            if (isMounted.current) {
+              console.log(url);
+              setPhotoUrl(url);
+            }
+          },
+          (err) => {
+            console.error(err);
+          }
+        );
+    }
+  }, [storage, ref]);
+
+  return photoUrl;
 };

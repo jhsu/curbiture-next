@@ -1,5 +1,5 @@
-import { atom } from "jotai";
 import firebase from "firebase";
+import { atom } from "jotai";
 
 export interface LatLngLiteral {
   lat: number;
@@ -11,7 +11,7 @@ export interface ItemLocation {
   id: string;
   created_at: Date;
   location: LatLngLiteral;
-  photo?: string;
+  // photo?: string;
   photo_path?: string;
   address?: string;
 }

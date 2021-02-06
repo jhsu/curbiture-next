@@ -2,7 +2,6 @@ import { Provider } from "jotai";
 import Head from "next/head";
 
 import { FirebaseProvider } from "components/firebase";
-import { BottomNav } from "components/nav/BottomNav";
 
 import "styles/tailwind.css";
 import "styles/tailwind-utilities.css";

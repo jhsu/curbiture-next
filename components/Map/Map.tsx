@@ -7,6 +7,30 @@ import MarkerClusterer from "@googlemaps/markerclustererplus";
 import { Cluster } from "@googlemaps/markerclustererplus/dist/cluster";
 import { ItemLocation } from "store";
 import Link from "next/link";
+import PostInfo from "./PostInfo";
+
+const dummyMarkers: ItemLocation[] = [
+  {
+    id: "1",
+    name: "first",
+    location: {
+      lat: 40.75421,
+      lng: -73.983534,
+    },
+    created_at: new Date(),
+    photo: "/images/curb.svg",
+  },
+  {
+    id: "2",
+    name: "second",
+    location: {
+      lat: 40.765879,
+      lng: -73.988748,
+    },
+    created_at: new Date(),
+    photo: "/images/curb.svg",
+  },
+];
 
 interface MapProps {
   defaultCenter?: google.maps.LatLngLiteral;
@@ -21,31 +45,6 @@ const Map = ({
   onBoundsChange,
 }: MapProps) => {
   const [googleMap, setGoogleMap] = useState<google.maps.Map>();
-  const dummyMarkers = useMemo<ItemLocation[]>(
-    () => [
-      {
-        id: "1",
-        name: "first",
-        location: {
-          lat: 40.75421,
-          lng: -73.983534,
-        },
-        created_at: new Date(),
-        photo: "/images/curb.svg",
-      },
-      {
-        id: "2",
-        name: "second",
-        location: {
-          lat: 40.765879,
-          lng: -73.988748,
-        },
-        created_at: new Date(),
-        photo: "/images/curb.svg",
-      },
-    ],
-    []
-  );
   const cluster = useRef<MarkerClusterer>();
   const [selected, setSelected] = useState<ItemLocation[]>();
 
@@ -151,20 +150,11 @@ const Map = ({
       >
         {infoLocation && (
           <InfoWindow {...infoLocation} onClose={() => void setSelected([])}>
-            {selected?.map((item, idx) => {
-              return (
-                <div key={idx}>
-                  <h2>{item.name}</h2>
-                  <Link href={`/posts/${item.id}`}>
-                    <img
-                      src={item.photo}
-                      style={{ maxWidth: "100%" }}
-                      title={item.name}
-                    />
-                  </Link>
-                </div>
-              );
-            })}
+            <div>
+              {selected?.map((item) => {
+                return <PostInfo key={item.id} post={item} />;
+              })}
+            </div>
           </InfoWindow>
         )}
         {/* <Marker lat={40.75421} lng={-73.983534} onClick={centerOn}>

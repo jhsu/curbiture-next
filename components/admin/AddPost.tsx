@@ -118,7 +118,7 @@ const LocationInput = ({ google }: LocationInputProps) => {
         try {
           const loc = await geocodeLocation(geocoder, {
             address,
-            bounds,
+            // bounds,
           });
 
           const idToken = await currentUser?.getIdToken();

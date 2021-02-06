@@ -14,6 +14,7 @@ import Button from "components/Button/Button";
 import { CloseIcon, MapIcon } from "components/SvgIcon";
 import Link from "next/link";
 import { useAtom } from "jotai";
+import { useStorageUrl } from "hooks/firebase";
 
 const ShowPost = () => {
   const store = useFirestore();
@@ -24,6 +25,8 @@ const ShowPost = () => {
   const [error, setError] = useState<Error>();
   const [, setSelectedPost] = useAtom(updateSelectedPostAtom);
   const [, setViewScope] = useAtom(activeView);
+
+  const photoUrl = useStorageUrl(post?.photo_path);
 
   useEffect(() => {
     setBottomNav({
@@ -55,7 +58,6 @@ const ShowPost = () => {
                 lng: location.longitude,
               },
               photo_path: data.photo_path,
-              photo: data.photo,
             });
           } else {
             throw new Error("Document not found");
@@ -87,7 +89,7 @@ const ShowPost = () => {
     <div className="flex-1 bg-gray-200 overflow-auto">
       <div className="flex flex-row items-center pr-2">
         <h2 className="flex-1 px-2">{post?.name}</h2>
-        <Link href="/">
+        <Link href="/map">
           <Button icon>
             <CloseIcon label="Close" />
           </Button>
@@ -95,7 +97,7 @@ const ShowPost = () => {
       </div>
       {post && (
         <>
-          {post.photo && <img src={post.photo} alt={post.name} width="100%" />}
+          {photoUrl && <img src={photoUrl} alt={post.name} width="100%" />}
           <div>
             <p>{post.address}</p>
             <Button onClick={onViewOnMap}>
