@@ -190,90 +190,92 @@ const LocationInput = ({ google }: LocationInputProps) => {
       <div className="px-3 flex-1 h-full pb-4 overflow-auto">
         <form onSubmit={handleSubmit(onSubmit)}>
           {formError && <div>{formError.message}</div>}
-          <div className="flex flex-col mb-4">
-            <input
-              id="post_photo"
-              name="photo"
-              disabled={isSubmitting}
-              ref={register()}
-              type="file"
-              accept="image/*;capture=camera"
-              className="hidden"
-            />
-            {photo && photo.length > 0 ? (
-              <div className="text-center">
-                <PhotoPreview file={photo?.[0]} />
-              </div>
-            ) : (
-              <label htmlFor="post_photo" className="field-label relative">
-                <span className="absolute block w-full text-center bg-gray-100 bg-opacity-50 bottom-4">
-                  select photo
-                </span>
-                <img
-                  src="/images/curb.svg"
-                  tabIndex={0}
-                  style={{ height: 200, margin: "0 auto" }}
-                />
-              </label>
-            )}
-          </div>
-          <div className="flex flex-col mb-4">
-            <label htmlFor="post_name" className="field-label">
-              description
-            </label>
-            <input
-              id="post_name"
-              disabled={isSubmitting}
-              ref={register({ required: true })}
-              name="name"
-              placeholder="name"
-              required
-              className="field"
-            />
-          </div>
-          <div className="flex flex-col mb-4">
-            <label htmlFor="post_address" className="field-label">
-              location
-            </label>
-            <Controller
-              control={control}
-              name="address"
-              rules={{ required: true }}
-              render={({ name, ref, onChange, onBlur }) => (
-                <input
-                  id="post_address"
-                  disabled={isSubmitting}
-                  name={name}
-                  ref={ref}
-                  placeholder="address"
-                  required
-                  className="field"
-                  onFocus={(e) => {
-                    e.target.scrollIntoView();
-                  }}
-                  onChange={(e) => {
-                    onChange(e);
-                    onAddressChangeDb(geocoder, {
-                      address: e.target.value,
-                      // TODO: use city/region bounds
-                      // bounds,
-                    });
-                  }}
-                  onBlur={onBlur}
-                />
+          <fieldset disabled={isSubmitting}>
+            <div className="flex flex-col mb-4">
+              <input
+                id="post_photo"
+                name="photo"
+                disabled={isSubmitting}
+                ref={register()}
+                type="file"
+                accept="image/*;capture=camera"
+                className="hidden"
+              />
+              {photo && photo.length > 0 ? (
+                <div className="text-center">
+                  <PhotoPreview file={photo?.[0]} />
+                </div>
+              ) : (
+                <label htmlFor="post_photo" className="field-label relative">
+                  <span className="absolute block w-full text-center bg-gray-100 bg-opacity-50 bottom-4">
+                    select photo
+                  </span>
+                  <img
+                    src="/images/curb.svg"
+                    tabIndex={0}
+                    style={{ height: 200, margin: "0 auto" }}
+                  />
+                </label>
               )}
-            ></Controller>
-          </div>
-          <div className="mb-2 flex flex-row">
-            <span className="flex-1">
-              <Button primary disabled={isSubmitting} type="submit">
-                Submit
+            </div>
+            <div className="flex flex-col mb-4">
+              <label htmlFor="post_name" className="field-label">
+                description
+              </label>
+              <input
+                id="post_name"
+                disabled={isSubmitting}
+                ref={register({ required: true })}
+                name="name"
+                placeholder="name"
+                required
+                className="field"
+              />
+            </div>
+            <div className="flex flex-col mb-4">
+              <label htmlFor="post_address" className="field-label">
+                location
+              </label>
+              <Controller
+                control={control}
+                name="address"
+                rules={{ required: true }}
+                render={({ name, ref, onChange, onBlur }) => (
+                  <input
+                    id="post_address"
+                    disabled={isSubmitting}
+                    name={name}
+                    ref={ref}
+                    placeholder="address"
+                    required
+                    className="field"
+                    onFocus={(e) => {
+                      e.target.scrollIntoView();
+                    }}
+                    onChange={(e) => {
+                      onChange(e);
+                      onAddressChangeDb(geocoder, {
+                        address: e.target.value,
+                        // TODO: use city/region bounds
+                        // bounds,
+                      });
+                    }}
+                    onBlur={onBlur}
+                  />
+                )}
+              ></Controller>
+            </div>
+            <div className="mb-2 flex flex-row">
+              <span className="flex-1">
+                <Button primary disabled={isSubmitting} type="submit">
+                  Submit
+                </Button>
+              </span>
+              <Button onClick={() => void setShowAddPost(false)}>
+                <a>cancel</a>
               </Button>
-            </span>
-            <Button onClick={() => void setShowAddPost(false)}>
-              <a>cancel</a>
-            </Button>
-          </div>
+            </div>
+          </fieldset>
         </form>
         <div className="mb-4" style={{ height: 200 }}>
           <PostPreview google={google} height={200} marker={loc} />

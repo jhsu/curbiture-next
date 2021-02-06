@@ -1,9 +1,8 @@
+import * as admin from "firebase-admin";
+import formidable from "formidable";
 import type { NextApiRequest, NextApiResponse } from "next";
 import sharp from "sharp";
-import formidable from "formidable";
 import short from "short-uuid";
-
-import * as admin from "firebase-admin";
 
 async function runMiddleware<T>(
   req: NextApiRequest,
@@ -108,6 +107,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
 
     const photoBuf = await sharp(photo.path)
       .resize({ width: 350 })
+      .rotate()
       .png({
         quality: 80,
       })
