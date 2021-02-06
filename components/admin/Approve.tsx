@@ -21,27 +21,12 @@ export const Approve = ({
   const approveDocument = useCallback(async () => {
     if (db && geoCollection) {
       try {
-        // await db
-        //   .collection("posts_approved")
-        //   .doc(post.id)
-        //   .set({
-        //     name: post.name,
-        //     photo: post.photo,
-        //     location: new firebase.firestore.GeoPoint(
-        //       post.location.lat,
-        //       post.location.lng
-        //     ),
-        //     created_at: post.created_at,
-        //     approved_at: new Date(),
-        //     // available: true,
-        //   });
         const geopoint = new firebase.firestore.GeoPoint(
           post.location.lat,
           post.location.lng
         );
         await geoCollection.doc(post.id).set({
           name: post.name,
-          photo: post.photo ?? null,
           photo_path: post.photo_path,
           location: geopoint,
           created_at: post.created_at,

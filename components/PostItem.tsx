@@ -5,6 +5,7 @@ import { ItemLocation } from "../store";
 import Button from "./Button/Button";
 import { MapIcon } from "./SvgIcon";
 import { Approve } from "./admin/Approve";
+import { useStorageUrl } from "hooks/firebase";
 
 interface PostItemProps {
   post: ItemLocation;
@@ -18,6 +19,7 @@ export const PostItem = ({
   onViewOnMap,
   onViewDetails,
 }: PostItemProps) => {
+  const photoUrl = useStorageUrl(post.photo_path);
   const onClick = useCallback(() => void onViewDetails(post), [post]);
   return (
     <div
@@ -25,9 +27,9 @@ export const PostItem = ({
       className="posts-item cursor-pointer p-4 border-b-2 flex flex-row"
     >
       <div onClick={onClick} className="flex flex-row flex-1">
-        {post.photo && (
+        {photoUrl && (
           <div className="w-10 float-left mr-1">
-            <img src={post.photo} alt={post.name} width="100%" />
+            <img src={photoUrl} alt={post.name} width="100%" />
           </div>
         )}
         <div className="flex-1">
