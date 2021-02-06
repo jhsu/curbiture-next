@@ -18,7 +18,6 @@ const dummyMarkers: ItemLocation[] = [
       lng: -73.983534,
     },
     created_at: new Date(),
-    photo_path: "/images/curb.svg",
   },
   {
     id: "2",
@@ -28,7 +27,6 @@ const dummyMarkers: ItemLocation[] = [
       lng: -73.988748,
     },
     created_at: new Date(),
-    photo_path: "/images/curb.svg",
   },
 ];
 
