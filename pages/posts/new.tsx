@@ -1,10 +1,10 @@
-import { AddPosting } from "components/admin/AddPost";
+import AddPost from "components/admin/AddPost";
 import Layout from "components/Layout/Layout";
 
 const NewPost = () => {
   return (
     <Layout requireUser>
-      <AddPosting />
+      <AddPost />
     </Layout>
   );
 };

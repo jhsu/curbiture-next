@@ -1,43 +1,44 @@
 import { GOOGLE_KEY } from "google";
 import GoogleMap, { Bounds } from "google-map-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import InfoWindow from "./InfoWindow";
 import MarkerClusterer from "@googlemaps/markerclustererplus";
 import { Cluster } from "@googlemaps/markerclustererplus/dist/cluster";
 import { ItemLocation } from "store";
-import Link from "next/link";
 import PostInfo from "./PostInfo";
 
-const dummyMarkers: ItemLocation[] = [
-  {
-    id: "1",
-    name: "first",
-    location: {
-      lat: 40.75421,
-      lng: -73.983534,
-    },
-    created_at: new Date(),
-  },
-  {
-    id: "2",
-    name: "second",
-    location: {
-      lat: 40.765879,
-      lng: -73.988748,
-    },
-    created_at: new Date(),
-  },
-];
+// const dummyMarkers: ItemLocation[] = [
+//   {
+//     id: "1",
+//     name: "first",
+//     location: {
+//       lat: 40.75421,
+//       lng: -73.983534,
+//     },
+//     created_at: new Date(),
+//   },
+//   {
+//     id: "2",
+//     name: "second",
+//     location: {
+//       lat: 40.765879,
+//       lng: -73.988748,
+//     },
+//     created_at: new Date(),
+//   },
+// ];
 
 interface MapProps {
-  defaultCenter?: google.maps.LatLngLiteral;
+  controls?: boolean;
+  center?: google.maps.LatLngLiteral;
   initialZoom?: number;
   markers: ItemLocation[];
   onBoundsChange(bounds: Bounds, zoom: number): void;
 }
 const Map = ({
-  defaultCenter,
+  controls = true,
+  center,
   initialZoom,
   markers,
   onBoundsChange,
@@ -51,29 +52,27 @@ const Map = ({
       return;
     }
 
-    const clusterMarkers = (markers.length ? markers : dummyMarkers).map(
-      (m) => {
-        const loc = m.location;
-        const position = new google.maps.LatLng(loc.lat, loc.lng);
-        const marker = new google.maps.Marker({
-          map: googleMap,
-          position,
-          title: "title",
-        });
-        marker.set("data", m);
+    const clusterMarkers = (markers.length ? markers : []).map((m) => {
+      const loc = m.location;
+      const position = new google.maps.LatLng(loc.lat, loc.lng);
+      const marker = new google.maps.Marker({
+        map: googleMap,
+        position,
+        title: "title",
+      });
+      marker.set("data", m);
 
-        google.maps.event.addListener(marker, "click", () => {
-          const pos = marker.getPosition();
-          if (pos) {
-            googleMap.panTo(pos);
-          }
-          setSelected((prevSelected) =>
-            prevSelected?.length === 1 && prevSelected[0] === m ? [] : [m]
-          );
-        });
-        return marker;
-      }
-    );
+      google.maps.event.addListener(marker, "click", () => {
+        const pos = marker.getPosition();
+        if (pos) {
+          googleMap.panTo(pos);
+        }
+        setSelected((prevSelected) =>
+          prevSelected?.length === 1 && prevSelected[0] === m ? [] : [m]
+        );
+      });
+      return marker;
+    });
 
     cluster.current = new MarkerClusterer(googleMap, clusterMarkers, {
       imagePath: "/map/m",
@@ -105,6 +104,18 @@ const Map = ({
     };
   }, [markers, googleMap]);
 
+  useEffect(() => {
+    if (center && googleMap) {
+      googleMap.setCenter(center);
+    }
+  }, [center, googleMap]);
+  const [defaultCenter] = useState(
+    center || {
+      lat: 40.75421,
+      lng: -73.983534,
+    }
+  );
+
   const infoLocation = selected ? selected[0]?.location : null;
 
   const onMapChange = useCallback(
@@ -118,29 +129,35 @@ const Map = ({
     setGoogleMap(map);
   }, []);
 
+  const controlOptions: GoogleMap.MapOptions = controls
+    ? {
+        zoomControl: true,
+      }
+    : {
+        // draggable: false,
+        // scrollwheel: false,
+        // panControl: false,
+      };
+
   return (
     <div className="map-container h-full" draggable={false}>
       <GoogleMap
         options={{
           disableDefaultUI: true,
-          zoomControl: true,
           minZoom: 10,
           gestureHandling: "greedy",
           zoomControlOptions: {
             position: 6,
           },
           clickableIcons: false,
+          ...controlOptions,
         }}
         bootstrapURLKeys={{
           key: GOOGLE_KEY,
           libraries: ["geometry"],
         }}
-        defaultCenter={
-          defaultCenter || {
-            lat: 40.75421,
-            lng: -73.983534,
-          }
-        }
+        defaultCenter={defaultCenter}
+        resetBoundsOnResize
         onChange={onMapChange}
         defaultZoom={initialZoom || 8}
         yesIWantToUseGoogleMapApiInternals

@@ -42,6 +42,8 @@ export const SignUp = ({ onSignup }: SignUpProps) => {
           name="email"
           id="user_email"
           type="email"
+          inputMode="email"
+          autoComplete="username"
           required
           className="text-input"
         />
@@ -56,6 +58,8 @@ export const SignUp = ({ onSignup }: SignUpProps) => {
           name="password"
           id="user_password"
           type="password"
+          inputMode="text"
+          autoComplete="new-password"
           required
           min="6"
           className="text-input"

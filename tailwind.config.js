@@ -19,4 +19,5 @@ module.exports = {
   corePlugins: {
     inset: true,
   },
+  plugins: [require("@tailwindcss/typography")],
 };

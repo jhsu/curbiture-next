@@ -38,8 +38,10 @@ export const Login = () => {
           name="email"
           id="user_email"
           type="email"
+          inputMode="email"
           required
           className="text-input"
+          autoComplete="username"
         />
       </div>
       <div className="mb-4">
@@ -53,6 +55,7 @@ export const Login = () => {
           required
           min="6"
           className="text-input"
+          autoComplete="current-password"
         />
       </div>
       <div className="flex flex-row">

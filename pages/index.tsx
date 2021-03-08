@@ -1,17 +1,19 @@
 // import classnames from "classnames";
 // import { useCallback } from "react";
 
+import PageBody from "components/PageBody";
+import { getPostContent } from "lib/api";
 import Link from "next/link";
 
-export default function IndexPage() {
+export default function IndexPage({ content }: { content: string }) {
   return (
     <>
       <header>
         <h1 className="text-center">Curbiture</h1>
       </header>
       <main>
-        <section role="banner" className="mx-auto max-w-3xl h-40 my-10">
-          <p>About this app</p>
+        <section role="banner" className="mx-auto max-w-3xl my-10">
+          <PageBody content={content} />
         </section>
         <div className="my-10">
           <p>
@@ -51,3 +53,12 @@ export default function IndexPage() {
     </>
   );
 }
+
+export const getStaticProps = async () => {
+  const content = await getPostContent("homepage");
+  return {
+    props: {
+      content,
+    },
+  };
+};
