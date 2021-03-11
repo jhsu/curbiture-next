@@ -24,13 +24,12 @@ const Carousel = ({ items = [] }: CarouselProps) => {
         return (
           <animated.div
             style={{
-              transform: offset.interpolate(
+              transform: offset.to(
                 (offsetX) => `translate3d(${offsetX * 100}%), 0, 0)`
               ),
               position: "absolute",
               width: "100%",
               height: "100%",
-              willChange: "transform",
             }}
           >
             testing
