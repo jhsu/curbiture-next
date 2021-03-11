@@ -10,6 +10,11 @@ module.exports = withPWA({
     if (!isServer) {
       config.node = { fs: "empty" };
     }
+
+    config.module.rules.push({
+      test: /react-spring/,
+      sideEffects: true,
+    });
     return config;
   },
   // future: { webpack5: true },
