@@ -12,6 +12,7 @@ import Map from "components/Map/Map";
 import SlidePanel from "components/SlidePanel/SlidePanel";
 import Button from "components/Button/Button";
 import { currentUserAtom } from "store";
+import { useFirebaseUser } from "hooks/firebase";
 
 const client = algoliasearch("ZOP008O4FG", "2a580969aa37bb644144759d157d8369");
 const postsIndex = client.initIndex("prod_posts");
@@ -58,6 +59,7 @@ interface Bounds {
 }
 
 const Page = () => {
+  useFirebaseUser();
   const [bounds, setBounds] = useState<Bounds | null>(null);
   const [posts, setPosts] = useState<SearchResult[]>([]);
   const [center, setCenter] = useState(defaultCenter);
@@ -148,11 +150,20 @@ const Page = () => {
   const onNewPost = useCallback(() => send("NEW_POST"), [send]);
   const onCancelNewPost = useCallback(() => send("CANCEL"), [send]);
   const onCreatePost = useCallback(
-    async ({ name, photo, address }) => {
-      const loc = {
-        lat: 40.759628,
-        lng: -73.987614,
-      };
+    async ({
+      name,
+      photo,
+      address,
+      location,
+    }: {
+      name: string;
+      photo: FileList;
+      address: string;
+      location: google.maps.LatLng;
+    }) => {
+      if (!currentUser) {
+        return;
+      }
       const idToken = await currentUser?.getIdToken();
       const headers = {
         Authorization: `bearer ${idToken}`,
@@ -165,8 +176,8 @@ const Page = () => {
         formData.append("photo", file);
         formData.append("name", name);
         formData.append("address", address);
-        formData.append("location[latitude]", loc.lat.toString());
-        formData.append("location[longitude]", loc.lng.toString());
+        formData.append("location[latitude]", location.lat().toString());
+        formData.append("location[longitude]", location.lng().toString());
         await fetch("/api/posts", {
           method: "POST",
           headers,
@@ -199,6 +210,7 @@ const Page = () => {
         />
       </SlidePanel>
       <div>
+        <div>show logged in info or sign in</div>
         <Button onClick={onNewPost}>add post</Button>
         <div className="p-2">
           <input

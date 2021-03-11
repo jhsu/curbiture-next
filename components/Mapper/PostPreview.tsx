@@ -31,7 +31,7 @@ const PostPreview = ({ height, marker, onGoogleReady }: PostPreview) => {
     <div className="relative" style={{ height }}>
       <GoogleMap
         options={{
-          // draggable: false,
+          draggable: false,
           // scrollwheel: false,
           // panControl: false,
           disableDefaultUI: true,
