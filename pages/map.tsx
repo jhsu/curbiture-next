@@ -15,7 +15,7 @@ const MapPage = () => {
       <div className="map-container h-full" draggable={false}>
         <Map
           markers={items}
-          defaultCenter={center}
+          center={center}
           initialZoom={zoom}
           onBoundsChange={({ sw, ne }: Bounds, zoom: number) => {
             if (window.google) {
