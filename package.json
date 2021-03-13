@@ -36,6 +36,7 @@
     "react": "^16",
     "react-dom": "^16",
     "react-hook-form": "^6.11.4",
+    "react-query": "^3.12.1",
     "react-spring": "^9.0.0-rc.3",
     "react-use-gesture": "^9.1.2",
     "remark": "^13.0.0",
