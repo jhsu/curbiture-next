@@ -37,7 +37,7 @@ export const useFirebaseUser = () => {
   return { user: currentUser, isReady: checkedUser };
 };
 
-export const useVisibleLocations = () => {
+export const useVisibleLocations = (cb?: (data: any) => void) => {
   const [, setLocations] = useAtom(locAtom);
   const [, setLoading] = useAtom(loadingItemsAtom);
   const [bounds] = useAtom(boundsAtom);
@@ -82,6 +82,7 @@ export const useVisibleLocations = () => {
           };
         });
         setLocations(data);
+        cb?.(data);
         setLoading(false);
         // TODO: how do we handle future add
         snapshot.docChanges().forEach((change) => {

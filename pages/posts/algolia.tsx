@@ -11,8 +11,12 @@ import NewPost from "components/Posts/NewPost";
 import Map from "components/Map/Map";
 import SlidePanel from "components/SlidePanel/SlidePanel";
 import Button from "components/Button/Button";
-import { currentUserAtom } from "store";
-import { useFirebaseUser } from "hooks/firebase";
+import { boundsAtom, currentUserAtom } from "store";
+import { useFirebaseUser, useVisibleLocations } from "hooks/firebase";
+import { useQuery } from "react-query";
+import googleMapReact from "google-map-react";
+import { UserIcon } from "components/SvgIcon";
+import Link from "next/link";
 
 const client = algoliasearch("ZOP008O4FG", "2a580969aa37bb644144759d157d8369");
 const postsIndex = client.initIndex("prod_posts");
@@ -58,34 +62,42 @@ interface Bounds {
   ne: { lat: number; lng: number };
 }
 
+async function loadMapPosts(
+  bounds: google.maps.LatLngBounds | undefined,
+  search: string
+): Promise<SearchResult[] | undefined> {
+  if (!bounds) {
+    return;
+  }
+  const sw = bounds.getSouthWest();
+  const ne = bounds.getNorthEast();
+  const locationParams = {
+    insideBoundingBox: [
+      [sw.lat(), sw.lng(), ne.lat(), ne.lng()],
+    ] as readonly number[][],
+  };
+  const { hits } = await postsIndex.search(search, locationParams);
+  return hits as SearchResult[];
+}
+
 const Page = () => {
   useFirebaseUser();
-  const [bounds, setBounds] = useState<Bounds | null>(null);
-  const [posts, setPosts] = useState<SearchResult[]>([]);
+  const [bounds, setBounds] = useAtom(boundsAtom);
+  // const [bounds, setBounds] = useState<Bounds | null>(null);
   const [center, setCenter] = useState(defaultCenter);
   const [search, setSearch] = useState("");
-  const [isSearching, setSearching] = useState(false);
 
   const [currentUser] = useAtom(currentUserAtom);
 
   const [formState, send] = useMachine(formMachine);
 
-  useEffect(() => {
-    (async () => {
-      if (!bounds) {
-        return;
-      }
-      setSearching(true);
-      const locationParams = {
-        insideBoundingBox: [
-          [bounds.sw.lat, bounds.sw.lng, bounds.ne.lat, bounds.ne.lng],
-        ] as readonly number[][],
-      };
-      const { hits } = await postsIndex.search(search, locationParams);
-      setSearching(false);
-      setPosts(hits as SearchResult[]);
-    })();
-  }, [search, bounds]);
+  const { data: posts, refetch, isFetching: isSearching } = useQuery<
+    SearchResult[] | undefined,
+    Error
+  >(["map-posts", bounds, search], () => loadMapPosts(bounds, search), {
+    placeholderData: [],
+  });
+  useVisibleLocations(refetch);
 
   const onUseLocation = useCallback(() => {
     if (navigator.geolocation) {
@@ -104,32 +116,36 @@ const Page = () => {
     }
   }, []);
   const markers = useMemo(() => {
-    return posts.map((post) => ({
-      id: post.objectID,
-      name: post.name,
-      created_at: new Date(),
-      location: {
-        lat: post.location.latitude,
-        lng: post.location.longitude,
-      },
-    }));
+    return (
+      posts?.map((post) => ({
+        id: post.objectID,
+        name: post.name,
+        created_at: new Date(),
+        location: {
+          lat: post.location.latitude,
+          lng: post.location.longitude,
+        },
+      })) ?? []
+    );
   }, [posts]);
 
   const boundRef = useRef<NodeJS.Timeout>();
   const updateBounds = useMemo(() => {
-    return (bounds) => {
+    return (bounds: googleMapReact.Bounds) => {
       if (boundRef.current) {
         clearTimeout(boundRef.current);
       }
       boundRef.current = setTimeout(() => {
-        setBounds(bounds);
+        // setBounds(bounds);
+        setBounds(new google.maps.LatLngBounds(bounds.sw, bounds.ne));
       }, 160);
     };
   }, []);
 
   const onBoundsChange = useCallback(
-    (bnds /*_zoom*/) => {
-      updateBounds({ sw: bnds.sw, ne: bnds.ne });
+    (bnds: googleMapReact.Bounds /*_zoom*/) => {
+      updateBounds(bnds);
+      // updateBounds({ sw: bnds.sw, ne: bnds.ne });
     },
     [updateBounds]
   );
@@ -209,10 +225,23 @@ const Page = () => {
           onCancel={onCancelNewPost}
         />
       </SlidePanel>
-      <div>
-        <div>show logged in info or sign in</div>
-        <Button onClick={onNewPost}>add post</Button>
-        <div className="p-2">
+      <div className="flex flex-row">
+        <div>
+          {currentUser ? (
+            <Link href="/user">
+              <Button>
+                <UserIcon label="Your Account" />
+              </Button>
+            </Link>
+          ) : (
+            <Link href="/login">
+              <Button>
+                <UserIcon label="Login" />
+              </Button>
+            </Link>
+          )}
+        </div>
+        <div className="p-2 flex-1">
           <input
             placeholder="Search for an item"
             onChange={onSearch}
@@ -221,10 +250,13 @@ const Page = () => {
           <div>
             <Image src="/images/algolia.svg" height={20} width={40} />
           </div>
+          <Button onClick={onUseLocation}>use my location</Button>
         </div>
-        <Button onClick={onUseLocation}>use my location</Button>
       </div>
-      <div className="flex-1" style={{ height: 500 }}>
+      <div className="relative flex-1" style={{ height: 500 }}>
+        <div className="absolute z-10 bottom-10 right-0">
+          <Button onClick={onNewPost}>add post</Button>
+        </div>
         <Map
           center={center}
           markers={markers}
