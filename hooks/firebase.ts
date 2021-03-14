@@ -1,6 +1,5 @@
 import firebase from "firebase/app";
 import { useAtom } from "jotai";
-import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useFireStorage, useGeofire } from "../components/firebase";
 import { debounce } from "../components/utils/utils";
@@ -18,23 +17,26 @@ export const useFirebaseAuth = () => {
 
 export const useFirebaseUser = () => {
   const auth = useFirebaseAuth();
-  const router = useRouter();
   const [currentUser, setUser] = useAtom(currentUserAtom);
   const [checkedUser, setCheckedUser] = useState(false);
 
   useEffect(() => {
-    if (auth) {
-      return auth.onAuthStateChanged((user) => {
-        if (user) {
-          setUser(user);
-        } else {
-          setUser(null);
-        }
-        setCheckedUser(true);
-      });
-    }
-  }, [auth, router]);
-  return { user: currentUser, isReady: checkedUser };
+    return auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+      setCheckedUser(true);
+    });
+  }, [auth]);
+
+  const signOut = useCallback(async () => {
+    await auth.signOut();
+    setUser(null);
+  }, [auth, setUser]);
+
+  return { user: currentUser, isReady: checkedUser, signOut };
 };
 
 export const useVisibleLocations = (cb?: (data: any) => void) => {

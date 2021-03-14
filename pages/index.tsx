@@ -12,7 +12,7 @@ export default function IndexPage({ content }: { content: string }) {
         <h1 className="text-center">Curbiture</h1>
       </header>
       <main>
-        <section role="banner" className="mx-auto max-w-3xl my-10">
+        <section role="banner" className="mx-auto max-w-3xl my-10 px-4">
           <PageBody content={content} />
         </section>
         <div className="my-10">

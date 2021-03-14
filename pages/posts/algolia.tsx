@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import algoliasearch from "algoliasearch";
 import Image from "next/image";
@@ -17,6 +17,8 @@ import { useQuery } from "react-query";
 import googleMapReact from "google-map-react";
 import { UserIcon } from "components/SvgIcon";
 import Link from "next/link";
+import LoginRedirectBack from "components/auth/LoginRedirectBack";
+import SignOut from "components/auth/Signout";
 
 const client = algoliasearch("ZOP008O4FG", "2a580969aa37bb644144759d157d8369");
 const postsIndex = client.initIndex("prod_posts");
@@ -57,11 +59,6 @@ interface SearchResult {
   photo_path: string;
 }
 
-interface Bounds {
-  sw: { lat: number; lng: number };
-  ne: { lat: number; lng: number };
-}
-
 async function loadMapPosts(
   bounds: google.maps.LatLngBounds | undefined,
   search: string
@@ -83,7 +80,6 @@ async function loadMapPosts(
 const Page = () => {
   useFirebaseUser();
   const [bounds, setBounds] = useAtom(boundsAtom);
-  // const [bounds, setBounds] = useState<Bounds | null>(null);
   const [center, setCenter] = useState(defaultCenter);
   const [search, setSearch] = useState("");
 
@@ -91,7 +87,7 @@ const Page = () => {
 
   const [formState, send] = useMachine(formMachine);
 
-  const { data: posts, refetch, isFetching: isSearching } = useQuery<
+  const { data: posts, refetch, isFetching: _isSearching } = useQuery<
     SearchResult[] | undefined,
     Error
   >(["map-posts", bounds, search], () => loadMapPosts(bounds, search), {
@@ -228,17 +224,20 @@ const Page = () => {
       <div className="flex flex-row">
         <div>
           {currentUser ? (
-            <Link href="/user">
-              <Button>
-                <UserIcon label="Your Account" />
-              </Button>
-            </Link>
+            <>
+              <Link href="/user/account">
+                <Button>
+                  <UserIcon label="Your Account" />
+                </Button>
+              </Link>
+              <SignOut />
+            </>
           ) : (
-            <Link href="/login">
+            <LoginRedirectBack>
               <Button>
                 <UserIcon label="Login" />
               </Button>
-            </Link>
+            </LoginRedirectBack>
           )}
         </div>
         <div className="p-2 flex-1">

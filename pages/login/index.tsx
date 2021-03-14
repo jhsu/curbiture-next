@@ -21,16 +21,16 @@ function validRedirect(
   if (destUrl.includes(current)) {
     return false;
   }
-  console.log("dest", destination);
-  const url = new URL(destUrl);
-  return /^\//.test(url.pathname as string) && (url.pathname as string);
+  return /^\//.test(destUrl) && destUrl;
 }
 
-const Login = ({ redirect_to: redirectProp }) => {
+const Login = () => {
   const router = useRouter();
   const { user, isReady } = useFirebaseUser();
   const redirectTo = useMemo(
-    () => (validRedirect(redirectProp, router.pathname) || "/posts") as string,
+    () =>
+      (validRedirect(router.query.redirect_to, router.pathname) ||
+        "/posts/algolia") as string,
     []
   );
   // TODO: disable page if not ready
@@ -66,7 +66,3 @@ const Login = ({ redirect_to: redirectProp }) => {
 };
 
 export default Login;
-
-export async function getServerSideProps(context) {
-  return { props: { redirect_to: context.req.headers.referer ?? null } };
-}
