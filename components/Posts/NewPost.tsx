@@ -39,18 +39,23 @@ const geocodeLocation = async (
 };
 
 interface NewPostProps {
-  onCreated(data: any): void;
-  onSubmit(data: any): void;
+  onSubmit(data: any): Promise<unknown>;
   onCancel?(): void;
 }
-const NewPost = ({ onSubmit, onCreated, onCancel }: NewPostProps) => {
+const NewPost = ({ onSubmit, onCancel }: NewPostProps) => {
   const [goog, setGoogleMap] = useState<{ map: any; maps: any }>();
   const onGoogleApiLoaded = useCallback((google) => {
     setGoogleMap(google);
   }, []);
   const [loc, setLoc] = useState<google.maps.LatLng | null>(null);
 
-  const { register, watch, handleSubmit, reset } = useForm({
+  const {
+    register,
+    watch,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm({
     defaultValues: {
       name: "",
       adddress: "",
@@ -91,10 +96,10 @@ const NewPost = ({ onSubmit, onCreated, onCancel }: NewPostProps) => {
   }, [address]);
 
   const onFormSubmit = useCallback(
-    (data) => {
-      onSubmit({ ...data, location: loc });
+    async (data) => {
+      return onSubmit({ ...data, location: loc });
     },
-    [loc, onSubmit]
+    [loc, onSubmit, isSubmitting]
   );
 
   return (

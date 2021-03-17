@@ -30,7 +30,7 @@ const Login = () => {
   const redirectTo = useMemo(
     () =>
       (validRedirect(router.query.redirect_to, router.pathname) ||
-        "/posts/algolia") as string,
+        "/map") as string,
     []
   );
   // TODO: disable page if not ready

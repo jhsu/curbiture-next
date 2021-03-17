@@ -113,7 +113,8 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
       })
       .toBuffer();
     const metadata = { postId: 1 };
-    const writeStream = bucket.file(`photos/${filename}`).createWriteStream({
+    const path = process.env.FIREBASE_STORAGE_BUCKET || "photos";
+    const writeStream = bucket.file(`${path}/${filename}`).createWriteStream({
       metadata,
     });
 

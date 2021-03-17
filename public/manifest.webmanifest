@@ -31,7 +31,7 @@
     ],
     "theme_color": "#CCCCCC",
     "background_color": "#FFFFFF",
-    "start_url": "/posts/algolia",
+    "start_url": "/map",
     "display": "standalone",
     "orientation": "portrait"
 }

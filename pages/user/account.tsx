@@ -17,7 +17,7 @@ const Account = () => {
   }
   return (
     <div className="">
-      <Link href="/posts/algolia">View Map</Link>
+      <Link href="/map">View Map</Link>
       {user.displayName}
     </div>
   );

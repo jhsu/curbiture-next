@@ -1,9 +1,8 @@
 import { Provider } from "jotai";
 import Head from "next/head";
-
-import { QueryClient, QueryClientProvider } from "react-query";
-
 import { useRef } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { AnimateSharedLayout } from "framer-motion";
 
 import { FirebaseProvider } from "components/firebase";
 
@@ -29,7 +28,9 @@ function MyApp({ Component, pageProps }) {
       <QueryClientProvider client={queryClientRef.current}>
         <FirebaseProvider>
           <Provider>
-            <Component {...pageProps} />
+            <AnimateSharedLayout>
+              <Component {...pageProps} />
+            </AnimateSharedLayout>
           </Provider>
         </FirebaseProvider>
       </QueryClientProvider>

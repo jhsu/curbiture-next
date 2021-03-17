@@ -1,5 +1,7 @@
 import { useFirestore } from "components/firebase";
 import { useRouter } from "next/router";
+
+import { motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import {
   activeView,
@@ -78,15 +80,25 @@ const ShowPost = () => {
 
   if (error) {
     return (
-      <div className="w-full h-full">
-        <h2>Unable to find post.</h2>
-        <Link href="/">Go home and see other posts.</Link>
-      </div>
+      <motion.div layoutId="post-details" className="w-full h-full">
+        <motion.div>
+          <h2>Item is no longer found.</h2>
+          <p>The item you are looking for has been taken by the internet.</p>
+          <p>Posts on Curbiture only last for 24 hours.</p>
+          <p>
+            <Link href="/map">Go back and keep looking.</Link>
+          </p>
+          <p>Don't forget to share items you come across!</p>
+        </motion.div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="flex-1 bg-gray-200 overflow-auto">
+    <motion.div
+      layoutId="post-details"
+      className="flex-1 bg-gray-200 overflow-auto"
+    >
       <div className="flex flex-row items-center pr-2">
         <h2 className="flex-1 px-2">{post?.name}</h2>
         <Link href="/map">
@@ -106,7 +118,7 @@ const ShowPost = () => {
           </div>
         </>
       )}
-    </div>
+    </motion.div>
   );
 };
 export default ShowPost;

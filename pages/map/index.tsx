@@ -13,30 +13,36 @@ import SlidePanel from "components/SlidePanel/SlidePanel";
 import Button from "components/Button/Button";
 import { boundsAtom, currentUserAtom } from "store";
 import { useFirebaseUser, useVisibleLocations } from "hooks/firebase";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import googleMapReact from "google-map-react";
 import { UserIcon } from "components/SvgIcon";
 import Link from "next/link";
 import LoginRedirectBack from "components/auth/LoginRedirectBack";
 import SignOut from "components/auth/Signout";
+import Success from "components/Posts/Success";
 
 const client = algoliasearch("ZOP008O4FG", "2a580969aa37bb644144759d157d8369");
 const postsIndex = client.initIndex("prod_posts");
 
 const formMachine = Machine({
   id: "map",
-  initial: "map",
+  initial: "posted",
   states: {
     map: {
-      on: { NEW_POST: "addPost", VIEW_POST: "viewPost" },
+      on: { NEW_POST: "addPost", VIEW_POST: "viewPost", SUCCESS: "posted" },
     },
     addPost: {
       on: { SUBMIT: "addingPost", CANCEL: "map", CREATED: "viewPost" },
     },
     addingPost: {
       on: {
-        SUCCESS: "map",
+        SUCCESS: "posted",
         FAILURE: "addPost",
+      },
+    },
+    posted: {
+      on: {
+        DISMISS: "map",
       },
     },
     viewPost: {
@@ -77,6 +83,22 @@ async function loadMapPosts(
   return hits as SearchResult[];
 }
 
+async function createPost({ headers, formData }) {
+  return new Promise((resolve) => {
+    console.log("resolve proise soon");
+    setTimeout(() => {
+      console.log("ok done");
+      resolve({});
+    }, 2000);
+  });
+
+  return await fetch("/api/posts", {
+    method: "POST",
+    headers,
+    body: formData,
+  }).then((res) => res.json());
+}
+
 const Page = () => {
   useFirebaseUser();
   const [bounds, setBounds] = useAtom(boundsAtom);
@@ -87,12 +109,25 @@ const Page = () => {
 
   const [formState, send] = useMachine(formMachine);
 
-  const { data: posts, refetch, isFetching: _isSearching } = useQuery<
+  const { data: posts, refetch: _refetch, isFetching: _isSearching } = useQuery<
     SearchResult[] | undefined,
     Error
   >(["map-posts", bounds, search], () => loadMapPosts(bounds, search), {
-    placeholderData: [],
+    initialData: [
+      {
+        objectID: "123",
+        name: "test listing",
+        location: {
+          latitude: 40.764579,
+          longitude: -73.991386,
+        },
+        photo_path: "self.png",
+      },
+    ],
+    enabled: false,
+    // placeholderData: [],
   });
+  const refetch = () => {};
   useVisibleLocations(refetch);
 
   const onUseLocation = useCallback(() => {
@@ -121,6 +156,7 @@ const Page = () => {
           lat: post.location.latitude,
           lng: post.location.longitude,
         },
+        photo_path: post.photo_path,
       })) ?? []
     );
   }, [posts]);
@@ -161,6 +197,18 @@ const Page = () => {
 
   const onNewPost = useCallback(() => send("NEW_POST"), [send]);
   const onCancelNewPost = useCallback(() => send("CANCEL"), [send]);
+
+  const submittingPost = useRef(false);
+  const { mutateAsync: mutateCreatePost } = useMutation(createPost, {
+    mutationKey: "createPost",
+    onSuccess: () => {
+      send("SUCCESS");
+    },
+    onSettled: () => {
+      submittingPost.current = false;
+    },
+  });
+
   const onCreatePost = useCallback(
     async ({
       name,
@@ -173,36 +221,45 @@ const Page = () => {
       address: string;
       location: google.maps.LatLng;
     }) => {
-      if (!currentUser) {
+      if (!currentUser || submittingPost.current) {
         return;
       }
+      submittingPost.current = true;
       const idToken = await currentUser?.getIdToken();
       const headers = {
         Authorization: `bearer ${idToken}`,
         Accept: "application/json",
       };
+
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("address", address);
+      formData.append("location[latitude]", location.lat().toString());
+      formData.append("location[longitude]", location.lng().toString());
       if (photo && photo[0]) {
         // upload photo
         const file = photo[0];
-        const formData = new FormData();
         formData.append("photo", file);
-        formData.append("name", name);
-        formData.append("address", address);
-        formData.append("location[latitude]", location.lat().toString());
-        formData.append("location[longitude]", location.lng().toString());
-        await fetch("/api/posts", {
-          method: "POST",
-          headers,
-          body: formData,
-        }).then((res) => res.json());
       }
-      send("SUCCESS");
+      return await mutateCreatePost({ headers, formData });
     },
     [currentUser]
   );
 
   return (
     <div className="h-full bg-white dark:bg-black flex flex-col overflow-hidden relative">
+      {formState.value === "posted" && (
+        <Success>
+          <p>
+            You have successfully submited your post. Once the post gets
+            approved, it will show up on the map.
+          </p>
+          <Button onClick={() => send("DISMISS")}>dismiss</Button>
+        </Success>
+      )}
+      {/* <Success>
+        You did it! <Button>continue</Button>
+      </Success> */}
       <SlidePanel
         visible={
           formState.value === "addPost" || formState.value === "addingPost"
@@ -212,11 +269,7 @@ const Page = () => {
         <NewPost
           onSubmit={(form) => {
             send("SUBMIT");
-            onCreatePost(form);
-          }}
-          onCreated={(post) => {
-            send("SUCCESS");
-            console.log(post);
+            return onCreatePost(form);
           }}
           onCancel={onCancelNewPost}
         />
@@ -239,6 +292,7 @@ const Page = () => {
               </Button>
             </LoginRedirectBack>
           )}
+          <Button onClick={() => send("SUCCESS")}>success</Button>
         </div>
         <div className="p-2 flex-1">
           <input
@@ -262,11 +316,6 @@ const Page = () => {
           onBoundsChange={onBoundsChange}
         />
       </div>
-      {/* <div className="overflow-auto">
-        {posts.map((post, idx) => {
-          return <div key={idx}>{post.name}</div>;
-        })}
-      </div> */}
     </div>
   );
 };
