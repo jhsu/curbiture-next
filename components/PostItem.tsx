@@ -1,11 +1,11 @@
-import * as React from "react";
+import React, { useMemo } from "react";
 import { useCallback } from "react";
 
 import { ItemLocation } from "../store";
 import Button from "./Button/Button";
 import { MapIcon } from "./SvgIcon";
 import { Approve } from "./admin/Approve";
-import { useStorageUrl } from "hooks/firebase";
+// import { useStorageUrl } from "hooks/firebase";
 
 interface PostItemProps {
   post: ItemLocation;
@@ -19,7 +19,10 @@ export const PostItem = ({
   onViewOnMap,
   onViewDetails,
 }: PostItemProps) => {
-  const photoUrl = useStorageUrl(post.photo_path);
+  const photoUrl = useMemo(
+    () => `https://photos.curbiture.app/${post.photo_path}`,
+    []
+  );
   const onClick = useCallback(() => void onViewDetails(post), [post]);
   return (
     <div

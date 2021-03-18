@@ -4,7 +4,6 @@
 import PageBody from "components/PageBody";
 import { getPostContent } from "lib/api";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function IndexPage({ content }: { content: string }) {
   return (

@@ -20,13 +20,14 @@ import Link from "next/link";
 import LoginRedirectBack from "components/auth/LoginRedirectBack";
 import SignOut from "components/auth/Signout";
 import Success from "components/Posts/Success";
+import { useIsAdmin } from "hooks/auth";
 
 const client = algoliasearch("ZOP008O4FG", "2a580969aa37bb644144759d157d8369");
 const postsIndex = client.initIndex("prod_posts");
 
 const formMachine = Machine({
   id: "map",
-  initial: "posted",
+  initial: "map",
   states: {
     map: {
       on: { NEW_POST: "addPost", VIEW_POST: "viewPost", SUCCESS: "posted" },
@@ -84,13 +85,12 @@ async function loadMapPosts(
 }
 
 async function createPost({ headers, formData }) {
-  return new Promise((resolve) => {
-    console.log("resolve proise soon");
-    setTimeout(() => {
-      console.log("ok done");
-      resolve({});
-    }, 2000);
-  });
+  // return new Promise((resolve) => {
+  //   console.log("resolve proise soon");
+  //   setTimeout(() => {
+  //     resolve({});
+  //   }, 2000);
+  // });
 
   return await fetch("/api/posts", {
     method: "POST",
@@ -104,29 +104,15 @@ const Page = () => {
   const [bounds, setBounds] = useAtom(boundsAtom);
   const [center, setCenter] = useState(defaultCenter);
   const [search, setSearch] = useState("");
-
   const [currentUser] = useAtom(currentUserAtom);
+  const isAdmin = useIsAdmin();
 
   const [formState, send] = useMachine(formMachine);
 
   const { data: posts, refetch: _refetch, isFetching: _isSearching } = useQuery<
     SearchResult[] | undefined,
     Error
-  >(["map-posts", bounds, search], () => loadMapPosts(bounds, search), {
-    initialData: [
-      {
-        objectID: "123",
-        name: "test listing",
-        location: {
-          latitude: 40.764579,
-          longitude: -73.991386,
-        },
-        photo_path: "self.png",
-      },
-    ],
-    enabled: false,
-    // placeholderData: [],
-  });
+  >(["map-posts", bounds, search], () => loadMapPosts(bounds, search));
   const refetch = () => {};
   useVisibleLocations(refetch);
 
@@ -254,12 +240,14 @@ const Page = () => {
             You have successfully submited your post. Once the post gets
             approved, it will show up on the map.
           </p>
-          <Button onClick={() => send("DISMISS")}>dismiss</Button>
+          <Button
+            onClick={() => send("DISMISS")}
+            className="absolute bottom-6 right-6"
+          >
+            dismiss
+          </Button>
         </Success>
       )}
-      {/* <Success>
-        You did it! <Button>continue</Button>
-      </Success> */}
       <SlidePanel
         visible={
           formState.value === "addPost" || formState.value === "addingPost"
@@ -278,12 +266,21 @@ const Page = () => {
         <div>
           {currentUser ? (
             <>
-              <Link href="/user/account">
-                <Button>
-                  <UserIcon label="Your Account" />
-                </Button>
-              </Link>
-              <SignOut />
+              <div>
+                <Link href="/user/account">
+                  <Button>
+                    <UserIcon label="Your Account" />
+                  </Button>
+                </Link>
+                <div>
+                  <SignOut />
+                </div>
+              </div>
+              {isAdmin && (
+                <div>
+                  <Link href="/posts">Approve Posts</Link>
+                </div>
+              )}
             </>
           ) : (
             <LoginRedirectBack>
@@ -292,7 +289,6 @@ const Page = () => {
               </Button>
             </LoginRedirectBack>
           )}
-          <Button onClick={() => send("SUCCESS")}>success</Button>
         </div>
         <div className="p-2 flex-1">
           <input

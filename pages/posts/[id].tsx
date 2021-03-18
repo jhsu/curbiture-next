@@ -2,7 +2,7 @@ import { useFirestore } from "components/firebase";
 import { useRouter } from "next/router";
 
 import { motion } from "framer-motion";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   activeView,
   bottomNavAtom,
@@ -16,7 +16,6 @@ import Button from "components/Button/Button";
 import { CloseIcon, MapIcon } from "components/SvgIcon";
 import Link from "next/link";
 import { useAtom } from "jotai";
-import { useStorageUrl } from "hooks/firebase";
 
 const ShowPost = () => {
   const store = useFirestore();
@@ -28,7 +27,10 @@ const ShowPost = () => {
   const [, setSelectedPost] = useAtom(updateSelectedPostAtom);
   const [, setViewScope] = useAtom(activeView);
 
-  const photoUrl = useStorageUrl(post?.photo_path);
+  const photoUrl = useMemo(
+    () => `https://photos.curbiture.app/${post?.photo_path}`,
+    [post]
+  );
 
   useEffect(() => {
     setBottomNav({

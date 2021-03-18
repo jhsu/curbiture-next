@@ -103,7 +103,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
     // TODO: generate thumbnail?
     const fileKey = translator.new();
     const filename = `${fileKey}.png`;
-    const bucket = storage.bucket();
+    const bucket = storage.bucket(process.env.FIREBASE_STORAGE_BUCKET);
 
     const photoBuf = await sharp(photo.path)
       .resize({ width: 350 })
@@ -112,11 +112,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         quality: 80,
       })
       .toBuffer();
-    const metadata = { postId: 1 };
-    const path = process.env.FIREBASE_STORAGE_BUCKET || "photos";
-    const writeStream = bucket.file(`${path}/${filename}`).createWriteStream({
-      metadata,
-    });
+    const writeStream = bucket.file(filename).createWriteStream({});
 
     await new Promise((resolve, reject) => {
       writeStream.on("error", (err) => {
@@ -138,7 +134,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
         parseFloat(fields["location[latitude]"]),
         parseFloat(fields["location[longitude]"])
       ),
-      photo_path: `photos/${filename}`,
+      photo_path: filename,
     };
     await postRef.set(postRecord);
 
