@@ -14,7 +14,7 @@ export default function IndexPage({ content }: { content: string }) {
       </header>
       <main>
         <section role="banner" className="mx-auto max-w-3xl mb-4 px-4 relative">
-          <Image width={2550} height={1700} src="/images/backdrop.jfif" />
+          <img width={2550} height={1700} src="/images/backdrop.jfif" />
           <p
             className="absolute bottom-10 rounded text-white md:text-xl font-medium bg-gray-600 bg-opacity-80 w-4/5 left-1/2 p-4"
             style={{

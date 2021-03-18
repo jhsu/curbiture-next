@@ -63,7 +63,7 @@ const Success = ({ children, onComplete }: SuccessProps) => {
             transition={{ type: "spring", mass: 10, damping: 20 }}
             className="z-10"
           >
-            <Image src="/images/couch.svg" width={300} height={300} />
+            <img src="/images/couch.svg" width={300} height={300} />
           </motion.div>
         </motion.div>
         <motion.div
