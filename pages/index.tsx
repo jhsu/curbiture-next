@@ -1,6 +1,7 @@
 // import classnames from "classnames";
 // import { useCallback } from "react";
 
+import Mailchimp from "components/Mailchimp";
 import PageBody from "components/PageBody";
 import { getPostContent } from "lib/api";
 import Link from "next/link";
@@ -48,20 +49,7 @@ export default function IndexPage({ content }: { content: string }) {
           </div>
           <div className="flex-1 relative" style={{ minHeight: 320 }}>
             <div className="md:max-w-md">
-              <iframe
-                src="https://curbiture.substack.com/embed"
-                height="320"
-                style={{
-                  width: "100%",
-                  border: "1px solid #EEE",
-                  backgroundColor: "white",
-                  position: "absolute",
-                  bottom: 0,
-                  boxShadow: "5px 5px 5px #333333",
-                }}
-                frameBorder="0"
-                scrolling="no"
-              ></iframe>
+              <Mailchimp />
             </div>
           </div>
         </section>
